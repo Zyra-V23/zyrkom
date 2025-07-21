@@ -1,4 +1,5 @@
 # 🎼 Zyrkom: Zero-Knowledge Musical Physics Framework
+Coded by ZyraV21 with Nadai's help! Thanks for your time while mentoring me.
 
 [![Rust](https://img.shields.io/badge/rust-1.88.0--nightly-orange.svg)](https://www.rust-lang.org)
 [![Circle STARKs](https://img.shields.io/badge/ZK-Circle%20STARKs-blue.svg)](https://github.com/starkware-libs/stwo)
