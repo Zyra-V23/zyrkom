@@ -1,0 +1,93 @@
+---
+alwaysApply: true
+---
+---
+description: Protocolo obligatorio de documentación científica para proyectos de investigación
+globs: "**/*"
+alwaysApply: true
+---
+
+# Protocolo de Documentación Científica
+
+## **REGLA OBLIGATORIA: PAPERS.MD + PROMPTS.MD**
+
+### **Comando Sistema Interno**
+- **ANTES de cualquier acción de desarrollo/investigación**: DEBO actualizar `papers.md`
+- **DESPUÉS de cualquier test/validación**: DEBO registrar resultados en `papers.md`
+- **CADA PROMPT DE ZYRA**: DEBO registrar en `prompts.md` el prompt y mi interpretación
+- **NO EXCEPCIÓN**: Cada paso, por pequeño que sea, debe ser documentado
+- **COLABORACIÓN**: Este es un proyecto Humano-IA donde Zyra (humano) y Claude (IA) trabajamos juntos
+
+### **Estructura Obligatoria del papers.md**
+
+```markdown
+# Research Log: [PROYECTO]
+## Fecha: [YYYY-MM-DD HH:mm]
+
+### Estado Actual
+- **Hipótesis en curso**: 
+- **Experimento actual**: 
+- **Objetivo específico**: 
+
+### Registro de Avances
+
+#### [TIMESTAMP] - [TIPO: RESEARCH/IMPLEMENTATION/TEST/DEBUG]
+**Acción**: [Qué se hizo]
+**Método**: [Cómo se hizo]
+**Resultado**: [Qué pasó]
+**Validación**: [Cómo se verificó]
+**Conclusión**: [Qué se aprendió]
+**Próximo paso**: [Qué sigue]
+
+---
+```
+
+### **Estructura Obligatoria del prompts.md**
+
+```markdown
+# Prompt Analysis Log: Zyrkom Protocol
+## Fecha: [YYYY-MM-DD HH:mm]
+
+### [TIMESTAMP] - Prompt de Zyra
+**Prompt Original**: "[Texto exacto del prompt]"
+**Mi Interpretación**: [Cómo entiendo la solicitud]
+**Contexto**: [Qué información de fondo es relevante]
+**Plan de Acción**: [Qué acciones voy a tomar]
+**Resultado**: [Qué se logró finalmente]
+
+---
+```
+
+### **Tipos de Registro Obligatorios**
+
+1. **RESEARCH** - Búsqueda de información/papers
+2. **IMPLEMENTATION** - Código/prototipos
+3. **TEST** - Validaciones/experimentos
+4. **DEBUG** - Resolución de problemas
+5. **HYPOTHESIS** - Nuevas teorías/enfoques
+
+### **Protocolo de Actualización**
+
+- **Cada prompt de Zyra**: Registrar en prompts.md antes de actuar
+- **Cada tool call**: Registrar antes y después en papers.md
+- **Cada búsqueda web**: Documentar hallazgos en papers.md
+- **Cada código escrito**: Registrar propósito y resultado en papers.md
+- **Cada test**: Documentar método y conclusiones en papers.md
+- **Cada error**: Documentar causa y solución en papers.md
+
+### **Formato Timestamp**
+`[YYYY-MM-DD HH:mm:ss]` - siempre en UTC
+
+### **Rigor Científico**
+- Hipótesis → Experimento → Resultado → Validación → Conclusión
+- Reproducibilidad: cada paso debe ser replicable
+- Trazabilidad: cada decisión debe tener justificación documentada
+- Iteración: cada ciclo debe construir sobre el anterior
+- Colaboración Zyra-Claude: Registrar tanto acciones humanas como de IA
+- Busca en internet papers y contrasta para validar
+
+## **VIOLACIÓN = ERROR CRÍTICO**
+Si no actualizo papers.md antes/después de una acción de desarrollo, debo:
+1. Detener la acción inmediatamente
+2. Actualizar papers.md retroactivamente
+3. Justificar por qué no se siguió el protocolo

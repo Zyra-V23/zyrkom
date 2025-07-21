@@ -1,0 +1,365 @@
+---
+alwaysApply: true
+---
+---
+description: Reglas específicas de Rust para proyecto Zyrkom - Performance crítico + ZK + Musical Theory
+globs: "zyrkom/**/*.rs"
+alwaysApply: true
+---
+
+# Zyrkom Rust Standards
+## Performance-Critical ZK + Musical Theory Framework
+
+### **REGLAS OBLIGATORIAS PARA ZYRKOM**
+
+## **1. PERFORMANCE CRÍTICO**
+
+### **Zero-Copy Operations (OBLIGATORIO)**
+```rust
+// ✅ DO: Use references for large data
+fn process_musical_constraint(notes: &[MusicalNote]) -> Constraint {
+    notes.iter().map(|note| note.to_constraint()).collect()
+}
+
+// ❌ DON'T: Clone large musical data
+fn process_musical_constraint_bad(notes: Vec<MusicalNote>) -> Constraint {
+    notes.clone().into_iter().map(|note| note.to_constraint()).collect()
+}
+```
+
+### **M31 Field Operations (CRÍTICO)**
+```rust
+// ✅ DO: Use SIMD-optimized field operations
+use stwo::core::fields::m31::M31;
+
+const fn musical_ratio_to_m31(cents: f64) -> M31 {
+    M31::from_u32_unchecked((cents * M31_SCALE_FACTOR) as u32)
+}
+
+// ❌ DON'T: Runtime conversions in hot paths
+fn slow_conversion(cents: f64) -> M31 {
+    M31::from(cents as u32) // No runtime validation needed
+}
+```
+
+### **Memory Layout para Cache Efficiency**
+```rust
+// ✅ DO: Group hot data together
+#[repr(C)]
+struct MusicalConstraint {
+    // Hot data: frequently accessed together (32 bytes)
+    frequency_ratio: f64,     // 8 bytes
+    cents: f64,              // 8 bytes
+    interval_type: u64,      // 8 bytes
+    constraint_id: u64,      // 8 bytes
+    
+    // Cold data: separate cache line
+    metadata: ConstraintMetadata,
+}
+
+// ❌ DON'T: Mix hot and cold data
+struct BadConstraint {
+    metadata: LargeMetadata,    // 256 bytes - kills cache
+    frequency_ratio: f64,       // Hot data after cold
+}
+```
+
+## **2. MUSICAL PHYSICS IMMUTABILITY**
+
+### **Compile-Time Constants (OBLIGATORIO)**
+```rust
+// ✅ DO: All musical ratios as compile-time constants
+pub const PERFECT_FIFTH_RATIO: f64 = 1.5;           // 3:2
+pub const MAJOR_THIRD_RATIO: f64 = 1.25;            // 5:4
+pub const OCTAVE_RATIO: f64 = 2.0;                  // 2:1
+pub const SEMITONE_RATIO: f64 = 1.0594630943592953; // 2^(1/12)
+
+// Physics validation at compile time
+const fn validate_interval(ratio: f64) -> bool {
+    // Only allow physically valid ratios
+    ratio > 1.0 && ratio <= 2.0
+}
+
+// ❌ DON'T: Runtime computation of physics constants
+fn calculate_fifth() -> f64 {
+    3.0 / 2.0 // Should be const!
+}
+```
+
+### **Type Safety para Musical Constraints**
+```rust
+// ✅ DO: Type-safe musical intervals
+#[derive(Debug, Clone, Copy)]
+pub struct MusicalInterval {
+    ratio: f64,
+    cents: f64,
+}
+
+impl MusicalInterval {
+    pub const fn perfect_fifth() -> Self {
+        Self {
+            ratio: PERFECT_FIFTH_RATIO,
+            cents: 700.0,
+        }
+    }
+    
+    // Compile-time validation
+    pub const fn new(ratio: f64, cents: f64) -> Option<Self> {
+        if validate_interval(ratio) {
+            Some(Self { ratio, cents })
+        } else {
+            None
+        }
+    }
+}
+
+// ❌ DON'T: Raw floats without type safety
+fn bad_interval(ratio: f64) -> f64 {
+    ratio // No validation, no semantics
+}
+```
+
+## **3. ZERO-KNOWLEDGE OPTIMIZATIONS**
+
+### **Efficient Constraint Generation**
+```rust
+// ✅ DO: Pre-allocate constraint vectors
+fn generate_chord_constraints(chord: &Chord) -> Vec<StarkConstraint> {
+    let estimated_constraints = chord.notes.len() * 3; // 3 constraints per note
+    let mut constraints = Vec::with_capacity(estimated_constraints);
+    
+    for note in &chord.notes {
+        constraints.extend(note.to_stark_constraints());
+    }
+    
+    constraints
+}
+
+// ❌ DON'T: Repeated allocations
+fn bad_constraints(chord: &Chord) -> Vec<StarkConstraint> {
+    let mut constraints = Vec::new(); // Starts with 0 capacity
+    for note in &chord.notes {
+        constraints.push(/* constraint */); // Multiple reallocations
+    }
+    constraints
+}
+```
+
+### **Circle STARK Integration**
+```rust
+// ✅ DO: Efficient AIR generation from musical constraints
+use stwo::core::air::Component;
+
+impl Component for MusicalConstraintComponent {
+    fn write_trace(&self, trace: &mut [&mut [M31]]) {
+        // Batch process musical constraints for optimal cache usage
+        self.musical_constraints
+            .chunks(OPTIMAL_BATCH_SIZE)
+            .enumerate()
+            .for_each(|(batch_idx, batch)| {
+                self.write_constraint_batch(trace, batch_idx, batch);
+            });
+    }
+}
+```
+
+## **4. ERROR HANDLING (STRICT)**
+
+### **NO unwrap() en Production Code**
+```rust
+// ✅ DO: Proper error propagation
+#[derive(Debug, thiserror::Error)]
+pub enum ZyrkomError {
+    #[error("Invalid musical interval: {ratio}")]
+    InvalidInterval { ratio: f64 },
+    #[error("STARK proof generation failed: {reason}")]
+    ProofError { reason: String },
+    #[error("Physics validation failed: {details}")]
+    PhysicsError { details: String },
+}
+
+pub fn create_musical_proof(constraints: &[MusicalConstraint]) -> Result<Proof, ZyrkomError> {
+    let validated = validate_physics_constraints(constraints)?;
+    let air = generate_air(&validated)?;
+    let proof = stark_prove(air)?;
+    Ok(proof)
+}
+
+// ❌ DON'T: Panic in production
+fn bad_proof(constraints: &[MusicalConstraint]) -> Proof {
+    let air = generate_air(constraints).unwrap(); // NEVER!
+    stark_prove(air).expect("Should work")         // NEVER!
+}
+```
+
+## **5. ASYNC/CONCURRENCY**
+
+### **Parallel Processing para ZK Generation**
+```rust
+// ✅ DO: Rayon for CPU-intensive ZK operations
+use rayon::prelude::*;
+
+pub fn parallel_constraint_generation(
+    musical_inputs: &[MusicalInput]
+) -> Vec<ConstraintSet> {
+    musical_inputs
+        .par_chunks(OPTIMAL_CHUNK_SIZE)
+        .map(|chunk| {
+            chunk.iter()
+                .map(|input| generate_constraints(input))
+                .collect()
+        })
+        .flatten()
+        .collect()
+}
+
+// ❌ DON'T: Blocking operations in async context
+async fn bad_async_proof(constraints: Vec<Constraint>) -> Proof {
+    // This blocks the entire async runtime!
+    generate_stark_proof(constraints) // Should use spawn_blocking
+}
+```
+
+### **Lock-Free donde Sea Posible**
+```rust
+// ✅ DO: Lock-free counters for metrics
+use std::sync::atomic::{AtomicU64, Ordering};
+
+pub struct ZyrkomMetrics {
+    constraints_generated: AtomicU64,
+    proofs_created: AtomicU64,
+    physics_validations: AtomicU64,
+}
+
+impl ZyrkomMetrics {
+    pub fn increment_constraints(&self) {
+        self.constraints_generated.fetch_add(1, Ordering::Relaxed);
+    }
+}
+```
+
+## **6. TESTING & BENCHMARKING**
+
+### **Property-Based Testing para Physics**
+```rust
+// ✅ DO: QuickCheck for physics properties
+use quickcheck_macros::quickcheck;
+
+#[quickcheck]
+fn octave_doubling_property(frequency: f64) -> bool {
+    if frequency > 0.0 && frequency < 10000.0 {
+        let octave_up = frequency * OCTAVE_RATIO;
+        (octave_up / frequency - 2.0).abs() < f64::EPSILON
+    } else {
+        true // Skip invalid frequencies
+    }
+}
+
+#[quickcheck]
+fn constraint_associativity(
+    c1: MusicalConstraint, 
+    c2: MusicalConstraint, 
+    c3: MusicalConstraint
+) -> bool {
+    let left = combine_constraints(&combine_constraints(&c1, &c2), &c3);
+    let right = combine_constraints(&c1, &combine_constraints(&c2, &c3));
+    constraints_equivalent(&left, &right)
+}
+```
+
+### **Micro-Benchmarks Críticos**
+```rust
+// ✅ DO: Benchmark hot paths
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+
+fn bench_musical_constraint_generation(c: &mut Criterion) {
+    let test_chord = create_test_chord();
+    
+    c.bench_function("chord_to_constraints", |b| {
+        b.iter(|| {
+            black_box(generate_constraints(black_box(&test_chord)))
+        })
+    });
+}
+
+criterion_group!(benches, bench_musical_constraint_generation);
+criterion_main!(benches);
+```
+
+## **7. DEPENDENCIES ESPECÍFICAS**
+
+### **Required Crates para Zyrkom**
+```toml
+[dependencies]
+# ZK Backend
+stwo = { git = "https://github.com/starkware-libs/stwo", features = ["gpu"] }
+
+# Musical Theory
+pitch-detector = "0.3"
+# Note: Will implement custom musical theory engine
+
+# Performance
+rayon = "1.10"
+crossbeam = "0.8"
+
+# Error Handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Optimization
+bytemuck = { version = "1.0", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+debug = true # Para profiling detallado
+```
+
+## **8. DOCUMENTATION OBLIGATORIA**
+
+### **Docstrings para Funciones Públicas**
+```rust
+/// Generates STARK constraints from musical intervals using physics-based validation.
+/// 
+/// This function converts musical intervals (frequency ratios) into mathematical
+/// constraints for Circle STARK proofs. All ratios are validated against physical
+/// laws of harmonic series.
+/// 
+/// # Arguments
+/// * `intervals` - Musical intervals to convert (must be physically valid)
+/// 
+/// # Returns
+/// * `Ok(Vec<Constraint>)` - Valid STARK constraints
+/// * `Err(ZyrkomError)` - If any interval violates physics
+/// 
+/// # Performance
+/// - Time complexity: O(n) where n is number of intervals
+/// - Memory: Pre-allocates based on interval count
+/// - Uses SIMD operations for M31 field arithmetic
+/// 
+/// # Examples
+/// ```rust
+/// let perfect_fifth = MusicalInterval::perfect_fifth();
+/// let constraints = generate_stark_constraints(&[perfect_fifth])?;
+/// assert_eq!(constraints.len(), 1);
+/// ```
+pub fn generate_stark_constraints(
+    intervals: &[MusicalInterval]
+) -> Result<Vec<Constraint>, ZyrkomError> {
+    // Implementation...
+}
+```
+
+## **VIOLACIONES = BUILD FAILURE**
+
+Estas reglas se enfocan en el núcleo de Zyrkom: rendimiento extremo, inmutabilidad física y pruebas ZK eficientes. Cualquier código que viole estos principios debe ser rechazado en code review.
+
+**Prioridades:**
+1. **Performance**: Zero-copy, pre-allocation, SIMD cuando posible
+2. **Physics**: Constantes compile-time, validación strict
+3. **Safety**: Proper error handling, no panics
+4. **ZK Efficiency**: Optimal constraint generation, parallel processing

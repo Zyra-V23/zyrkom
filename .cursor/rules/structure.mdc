@@ -1,0 +1,235 @@
+---
+alwaysApply: true
+---
+# Estructura del Repositorio Zyrkom
+## Organización Obligatoria - NO Crear Archivos Random
+
+### **REGLA CRÍTICA: RESPETA LA ESTRUCTURA**
+
+**ANTES de crear CUALQUIER archivo, DEBO verificar que va en el directorio correcto según esta regla.**
+
+## **ESTRUCTURA OBLIGATORIA**
+
+```
+zyrkom/
+├── docs/                     # 📚 TODA la documentación aquí
+│   ├── prd.md               # Product Requirements Document
+│   ├── techstack.md         # Documentación técnica
+│   ├── architecture/        # Diagramas y arquitectura
+│   ├── api/                 # Documentación de APIs
+│   └── research/            # Papers y research logs
+├── 
+├── zyrkom/                  # 🦀 Código principal Rust
+│   ├── src/                 # Código fuente
+│   │   ├── main.rs         # Entry point
+│   │   ├── lib.rs          # Library root
+│   │   ├── musical/        # Musical physics engine
+│   │   ├── zk/             # Zero-Knowledge components
+│   │   ├── dsl/            # Zyrkom DSL compiler
+│   │   └── utils/          # Utilities compartidas
+│   ├── tests/              # Integration tests
+│   ├── benches/            # Benchmarks
+│   ├── examples/           # Ejemplos de uso
+│   └── Cargo.toml          # Dependencies
+├── 
+├── tools/                   # 🛠️ Herramientas de desarrollo
+│   ├── cli/                # Command line tools
+│   ├── vscode-ext/         # VSCode extension
+│   └── scripts/            # Build/deployment scripts
+├── 
+├── research/               # 🔬 Investigación y experimentos
+│   ├── papers.md           # Research log
+│   ├── prompts.md          # Prompt analysis log
+│   ├── prototypes/         # Código experimental
+│   └── benchmarks/         # Performance analysis
+├── 
+├── external/               # 📦 Dependencias externas
+│   ├── stwo/               # Circle STARKs framework
+│   └── icicle/             # GPU acceleration
+├── 
+├── .cursor/                # ⚙️ Configuración IDE
+│   └── rules/              # Reglas de desarrollo
+├── 
+└── config/                 # 🔧 Configuración del proyecto
+    ├── .gitignore
+    ├── README.md
+    └── LICENSE
+```
+
+## **REGLAS POR TIPO DE ARCHIVO**
+
+### **📚 Documentación (SIEMPRE en /docs)**
+```
+✅ DO: Crear docs en /docs
+docs/prd.md              # Product docs
+docs/api/endpoints.md    # API documentation  
+docs/architecture/zk.md  # Technical diagrams
+
+❌ DON'T: Docs fuera de /docs
+./README_temp.md         # NO en root
+zyrkom/docs.md          # NO en código
+./notes.txt             # NO archivos sueltos
+```
+
+### **🦀 Código Rust (SIEMPRE en /zyrkom)**
+```
+✅ DO: Código en estructura organizad
+zyrkom/src/musical/intervals.rs    # Musical physics
+zyrkom/src/zk/constraints.rs       # ZK components
+zyrkom/src/dsl/parser.rs           # DSL compiler
+zyrkom/tests/integration.rs        # Tests
+
+❌ DON'T: Código disperso
+./test.rs                          # NO en root
+./musical_stuff.rs                 # NO archivos sueltos
+docs/code_example.rs               # NO código en docs
+```
+
+### **🔬 Research y Logs (SIEMPRE en /research)**
+```
+✅ DO: Research organizado
+research/papers.md                 # Research log
+research/prompts.md                # Prompt analysis
+research/prototypes/experiment1.rs # Experimental code
+
+❌ DON'T: Research disperso
+./papers.md                        # NO en root
+./debug_notes.txt                  # NO archivos temporales
+zyrkom/research.md                 # NO en código
+```
+
+### **🛠️ Tools y Scripts (SIEMPRE en /tools)**
+```
+✅ DO: Tools organizados
+tools/cli/zyrkom-cli.rs           # Command line
+tools/scripts/build.sh            # Build scripts
+tools/vscode-ext/extension.ts     # IDE extensions
+
+❌ DON'T: Tools dispersos
+./build.sh                        # NO en root
+./helper.py                       # NO scripts sueltos
+```
+
+### **⚙️ Configuración (Ubicaciones específicas)**
+```
+✅ DO: Config en lugares correctos
+config/.gitignore                 # Git configuration
+config/LICENSE                    # Project license
+zyrkom/Cargo.toml                 # Rust dependencies
+.cursor/rules/structure.mdc       # IDE rules
+
+❌ DON'T: Config dispersa
+./random_config.json              # NO configs random
+./temp_settings.toml              # NO archivos temporales
+```
+
+## **PATRONES DE NAMING**
+
+### **Archivos Rust**
+```rust
+// ✅ DO: Snake_case para archivos
+musical_intervals.rs
+zk_constraints.rs
+dsl_parser.rs
+
+// ❌ DON'T: Otros formatos
+MusicalIntervals.rs               // No PascalCase
+musical-intervals.rs              // No kebab-case
+musicalIntervals.rs               // No camelCase
+```
+
+### **Directorios**
+```
+✅ DO: Lowercase con guiones bajos
+src/musical_theory/
+src/zk_proofs/
+docs/api_reference/
+
+❌ DON'T: Otros formatos
+src/MusicalTheory/               // No PascalCase
+src/musical-theory/              // No kebab-case
+src/musicalTheory/               // No camelCase
+```
+
+### **Documentación**
+```
+✅ DO: Descriptivo y claro
+docs/architecture/stark_integration.md
+docs/api/musical_constraints.md
+research/performance_analysis.md
+
+❌ DON'T: Nombres vagos
+docs/stuff.md                    // No descriptivo
+docs/doc1.md                     // No numerado
+docs/temp.md                     // No temporales
+```
+
+## **WORKFLOW DE CREACIÓN DE ARCHIVOS**
+
+### **ANTES de crear CUALQUIER archivo:**
+
+1. **Verificar tipo**: ¿Es doc, código, research, tool, config?
+2. **Ubicar directorio**: Según la tabla de estructura
+3. **Verificar naming**: Snake_case, descriptivo, no temporales
+4. **Crear path completo**: Con subdirectorios necesarios
+
+### **Ejemplos Correctos:**
+```bash
+# Crear documentación
+docs/api/musical_dsl.md
+
+# Crear código Rust  
+zyrkom/src/musical/harmonics.rs
+
+# Crear test
+zyrkom/tests/musical_physics.rs
+
+# Crear research
+research/prototypes/interval_validation.rs
+
+# Crear tool
+tools/cli/constraint_generator.rs
+```
+
+### **Ejemplos PROHIBIDOS:**
+```bash
+# ❌ NO crear en root
+./notes.md
+./test.rs
+./helper.py
+
+# ❌ NO crear disperso
+zyrkom/docs.md
+docs/code.rs
+research/random_file.txt
+
+# ❌ NO nombres temporales
+./temp.md
+./debug.txt
+./test123.rs
+```
+
+## **EXCEPCIONES PERMITIDAS**
+
+**Solo en el root:**
+- `README.md` (obligatorio)
+- `LICENSE` 
+- `.gitignore`
+- `Cargo.toml` (workspace level)
+
+**Todo lo demás DEBE seguir la estructura.**
+
+## **VIOLACIÓN = ERROR CRÍTICO**
+
+Si creo un archivo fuera de esta estructura:
+1. **Detener inmediatamente**
+2. **Mover archivo al lugar correcto**
+3. **Justificar por qué no seguí la regla**
+4. **Actualizar referencias/imports**
+
+**Esta regla NO tiene excepciones para "archivos temporales" o "pruebas rápidas".**
+description:
+globs:
+alwaysApply: true
+---
+
