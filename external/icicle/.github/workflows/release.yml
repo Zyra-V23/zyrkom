@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release type'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      bump:
+        description: 'Bump Docs, Rust crates, and create draft release?'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  run-examples:
+    name: Run Examples
+    uses: ./.github/workflows/examples.yml
+
+  release:
+    name: Release
+    needs: [run-examples]
+    runs-on: [self-hosted, Linux, X64, icicle, release]  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Checkout CUDA Backend
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ingonyama-zk/icicle-cuda-backend
+          path: ./icicle/backend/cuda
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ssh-key: ${{ secrets.CUDA_PULL_KEY }}
+          ref: main
+      - name: Setup Cache
+        id: cache
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('~/.cargo/bin/cargo-workspaces') }}
+      - name: Install cargo-workspaces
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo install cargo-workspaces
+      - name: Bump rust crate versions, commit, and tag
+        if: ${{ inputs.bump }}
+        working-directory: wrappers/rust
+        # https://github.com/pksunkara/cargo-workspaces?tab=readme-ov-file#version
+        run: |
+          git config user.name release-bot
+          git config user.email release-bot@ingonyama.com
+          cargo workspaces version ${{ inputs.releaseType }} -y --no-individual-tags --no-git-push -m "Bump rust crates' version"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+      - name: Bump docs version
+        id: bump-docs-version
+        if: ${{ inputs.releaseType != 'patch' && inputs.bump }}
+        working-directory: ./docs
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          LATEST_VERSION=${LATEST_TAG:1}
+          npm install
+          npm run docusaurus docs:version $LATEST_VERSION
+          git add --all
+          git commit -m "Bump docs version"
+      - name: Push to github branch main
+        run: |
+          git push origin main --tags
+      - name: Create draft release
+        if: ${{ inputs.bump }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |          
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          gh release create $LATEST_TAG --generate-notes -d --verify-tag -t "Release $LATEST_TAG"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload release tars
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p release_output && rm -rf ./release_output/*
+          LATEST_TAG=$(git ls-remote --tags --sort='-v:refname' | head -n1 | sed 's/.*refs\/tags\/\(v[0-9.]*\).*/\1/')
+          ./scripts/release/build_all.sh $LATEST_TAG ./release_output
+          for file in ./release_output/*.tar.gz; do
+            gh release upload $LATEST_TAG "$file"
+          done
