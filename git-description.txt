@@ -1,0 +1,1 @@
+🎼 Zyrkom: Zero-Knowledge Musical Physics Framework - First ZK protocol using immutable musical intervals as cryptographic primitives. Built with Circle STARKs + Rust + Matrix UI. Web3-native with direct EVM integration for NFT verification and DeFi streaming. 

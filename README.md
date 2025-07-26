@@ -1,6 +1,6 @@
 # 🎼 Zyrkom: Zero-Knowledge Musical Physics Framework
 SoloDev: ZyraV21 
-Special Thanks to Nadai from Starknet for guiding my steps and updating me to the most actual status of art in terms of ZK. I would like to mention Ivan, Toni, Datarupture and Anibal from EscuelaCryptoSpain, without them I wouldn't be here nowadays.
+Special Thanks to Nadai from Starknet for guiding my steps and updating me to the most actual status of art in terms of ZK. I would like to mention Ivan, Toni, Datapture and Anibal from EscuelaCryptoES, without them I wouldn't be here nowadays.
 
 [![Rust](https://img.shields.io/badge/rust-1.88.0--nightly-orange.svg)](https://www.rust-lang.org)
 [![Circle STARKs](https://img.shields.io/badge/ZK-Circle%20STARKs-blue.svg)](https://github.com/starkware-libs/stwo)

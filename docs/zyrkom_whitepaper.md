@@ -262,5 +262,3 @@ Zyrkom is the **first protocol** to mathematically prove audio authenticity usin
 Zyrkom represents the rare intersection of breakthrough technology, massive market opportunity, and perfect timing. We are positioned to capture significant market share in the fastest-growing segment of the digital economy while building defensible technological moats that ensure long-term value creation.
 
 ---
-
-**Important Notice**: This document contains confidential and proprietary information intended solely for qualified investors. Any reproduction, distribution, or disclosure without written authorization is strictly prohibited. This presentation contains forward-looking projections based on current market analysis and technological capabilities. Past performance does not guarantee future results. 
