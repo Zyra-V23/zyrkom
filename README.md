@@ -98,7 +98,7 @@ let proof = ZyrkomProver::new(constraints)?.prove()?;  // Mathematical certainty
    - Trace generation and mask point calculation
    - Musical proof generation and verification
 
-4. **🎵 Matrix-Style Frontend (Tauri v2)**
+4. **🎵 Matrix-Style Frontend (Tauri v2)** -> UNDER CONSTRUCTION, MAY HAVE BUGS
    - Real-time audio playback using Web Audio API
    - Live frequency visualization with Canvas API
    - Interactive ZK terminal with command processing

@@ -130,9 +130,9 @@ mod tests {
         println!("⏱️  Official tempo: {} BPM ({} ms per beat)", tempo_bpm, beat_duration_ms);
         println!("🎵 Real Spanish Anthem sequence provided by Zyra:");
         println!("   Phrase 1: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO");
-        println!("   Phrase 2: FA SOL LA DO* SIb LA SOL FA DO");
+        println!("   Phrase 2: FA SOL LA DO* SIb LA SOL FA DO*");
         println!("   Phrase 3: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO");
-        println!("   Phrase 4: FA SOL LA DO* SIb LA SOL FA DO");
+        println!("   Phrase 4: FA SOL LA DO* SIb LA SOL FA DO*");
         
         // Note frequencies (4th octave as base):
         let fa = MusicalNote::from_frequency(349.23);   // F4
@@ -147,47 +147,86 @@ mod tests {
         // Phrase 1: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO
         let phrase1 = vec![fa, do_note, la, fa, do_high, sib, la, sol, fa, fa, mi, re, do_note];
         
-        // Phrase 2: FA SOL LA DO* SIb LA SOL FA DO
-        let phrase2 = vec![fa, sol, la, do_high, sib, la, sol, fa, do_note];
+        // Duration pattern from official sheet music (negra=789ms, corchea=394ms)
+        // Pattern: negra negra negra corchea corchea corchea corchea corchea corchea corchea corchea corchea corchea
+        let phrase1_durations = vec![
+            beat_duration_ms,      // FA - negra (789ms)
+            beat_duration_ms,      // DO - negra (789ms)  
+            beat_duration_ms,      // LA - negra (789ms)
+            beat_duration_ms / 2,  // FA - corchea (394ms)
+            beat_duration_ms / 2,  // DO* - corchea (394ms)
+            beat_duration_ms / 2,  // SIb - corchea (394ms)
+            beat_duration_ms / 2,  // LA - corchea (394ms)
+            beat_duration_ms / 2,  // SOL - corchea (394ms)
+            beat_duration_ms / 2,  // FA - corchea (394ms)
+            beat_duration_ms / 2,  // FA - corchea (394ms)
+            beat_duration_ms / 2,  // MI - corchea (394ms)
+            beat_duration_ms / 2,  // RE - corchea (394ms)
+            beat_duration_ms / 2,  // DO - corchea (394ms)
+        ];
+        
+        // Phrase 2: FA SOL LA DO* SIb LA SOL FA DO*
+        let phrase2 = vec![fa, sol, la, do_high, sib, la, sol, fa, do_high];
+        let phrase2_durations = vec![
+            beat_duration_ms / 2,  // FA - corchea  
+            beat_duration_ms / 2,  // SOL - corchea
+            beat_duration_ms / 2,  // LA - corchea
+            beat_duration_ms / 2,  // DO* - corchea
+            beat_duration_ms / 2,  // SIb - corchea
+            beat_duration_ms / 2,  // LA - corchea
+            beat_duration_ms / 2,  // SOL - corchea
+            beat_duration_ms / 2,  // FA - corchea
+            beat_duration_ms,      // DO* - negra (final phrase)
+        ];
         
         // Phrase 3: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO (repeat of phrase 1)
         let phrase3 = vec![fa, do_note, la, fa, do_high, sib, la, sol, fa, fa, mi, re, do_note];
+        let phrase3_durations = phrase1_durations.clone(); // Same rhythm as phrase 1
         
-        // Phrase 4: FA SOL LA DO* SIb LA SOL FA DO (repeat of phrase 2)  
-        let phrase4 = vec![fa, sol, la, do_high, sib, la, sol, fa, do_note];
+        // Phrase 4: FA SOL LA DO* SIb LA SOL FA DO* (repeat of phrase 2)  
+        let phrase4 = vec![fa, sol, la, do_high, sib, la, sol, fa, do_high];
+        let phrase4_durations = phrase2_durations.clone(); // Same rhythm as phrase 2
         
         // Play the complete anthem with real melody
         println!("\n🎵 Playing Phrase 1: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO");
-        for (i, note) in phrase1.iter().enumerate() {
-            print!("🎵 {}Hz ", note.frequency());
-            play_musical_note_for_duration(*note, beat_duration_ms / 2);
+        println!("   Rhythm: ♩ ♩ ♩ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫");
+        for (i, (note, duration)) in phrase1.iter().zip(phrase1_durations.iter()).enumerate() {
+            let note_type = if *duration == beat_duration_ms { "♩" } else { "♫" };
+            print!("🎵 {}Hz {}({}ms) ", note.frequency(), note_type, duration);
+            play_musical_note_for_duration(*note, *duration);
             if i < phrase1.len() - 1 {
                 thread::sleep(Duration::from_millis(50)); // Brief pause between notes
             }
         }
         
-        println!("\n\n🎵 Playing Phrase 2: FA SOL LA DO* SIb LA SOL FA DO");
-        for (i, note) in phrase2.iter().enumerate() {
-            print!("🎵 {}Hz ", note.frequency());
-            play_musical_note_for_duration(*note, beat_duration_ms / 2);
+        println!("\n\n🎵 Playing Phrase 2: FA SOL LA DO* SIb LA SOL FA DO*");
+        println!("   Rhythm: ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♩");
+        for (i, (note, duration)) in phrase2.iter().zip(phrase2_durations.iter()).enumerate() {
+            let note_type = if *duration == beat_duration_ms { "♩" } else { "♫" };
+            print!("🎵 {}Hz {}({}ms) ", note.frequency(), note_type, duration);
+            play_musical_note_for_duration(*note, *duration);
             if i < phrase2.len() - 1 {
                 thread::sleep(Duration::from_millis(50));
             }
         }
         
         println!("\n\n🎵 Playing Phrase 3: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO");
-        for (i, note) in phrase3.iter().enumerate() {
-            print!("🎵 {}Hz ", note.frequency());
-            play_musical_note_for_duration(*note, beat_duration_ms / 2);
+        println!("   Rhythm: ♩ ♩ ♩ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫");
+        for (i, (note, duration)) in phrase3.iter().zip(phrase3_durations.iter()).enumerate() {
+            let note_type = if *duration == beat_duration_ms { "♩" } else { "♫" };
+            print!("🎵 {}Hz {}({}ms) ", note.frequency(), note_type, duration);
+            play_musical_note_for_duration(*note, *duration);
             if i < phrase3.len() - 1 {
                 thread::sleep(Duration::from_millis(50));
             }
         }
         
-        println!("\n\n🎵 Playing Phrase 4: FA SOL LA DO* SIb LA SOL FA DO");
-        for (i, note) in phrase4.iter().enumerate() {
-            print!("🎵 {}Hz ", note.frequency());
-            play_musical_note_for_duration(*note, beat_duration_ms / 2);
+        println!("\n\n🎵 Playing Phrase 4: FA SOL LA DO* SIb LA SOL FA DO*");
+        println!("   Rhythm: ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♩");
+        for (i, (note, duration)) in phrase4.iter().zip(phrase4_durations.iter()).enumerate() {
+            let note_type = if *duration == beat_duration_ms { "♩" } else { "♫" };
+            print!("🎵 {}Hz {}({}ms) ", note.frequency(), note_type, duration);
+            play_musical_note_for_duration(*note, *duration);
             if i < phrase4.len() - 1 {
                 thread::sleep(Duration::from_millis(50));
             }
