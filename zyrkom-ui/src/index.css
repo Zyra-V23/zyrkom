@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-pixel: 'Press Start 2P', monospace;
+  --color-bg: #008080;
+  --color-primary: #00ff00;
+  --color-accent: #ff0066;
+  --color-error: #ff0000;
+  --color-success: #00ff00;
+  --bg-primary: #000040;
+  --text-primary: #00ff00;
+  --text-accent: #ffffff;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background: url('/windows95-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #000000;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 11px;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Windows 95 Window Style */
+.window-95 {
+  background-color: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  box-shadow: 1px 1px 0 #808080;
+}
+
+.window-titlebar {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: white;
+  padding: 2px 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 11px;
+  height: 18px;
+}
+
+.window-button {
+  background-color: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  width: 16px;
+  height: 14px;
+  padding: 0;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.window-button:active {
+  border-top: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #ffffff;
+  border-bottom: 1px solid #ffffff;
+}
+
+/* Windows 95 Button Style */
+.button-95 {
+  background-color: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #808080;
+  border-bottom: 2px solid #808080;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000000;
+  font-family: 'MS Sans Serif', sans-serif;
+}
+
+.button-95:active {
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+
+/* Windows 95 Taskbar */
+.taskbar-95 {
+  background-color: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  gap: 2px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.start-button {
+  background-color: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+  padding: 2px 8px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.start-button img {
+  width: 16px;
+  height: 16px;
+}
+
+/* Desktop Icon Style */
+.desktop-icon {
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  padding: 4px;
+  user-select: none;
+}
+
+.desktop-icon:hover {
+  background-color: rgba(0, 0, 128, 0.3);
+}
+
+.desktop-icon.selected {
+  background-color: rgba(0, 0, 128, 0.5);
+  color: white;
+}
+
+.desktop-icon img {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  image-rendering: pixelated;
+}
+
+.desktop-icon span {
+  font-size: 11px;
+  text-shadow: 1px 1px 0 white;
+  word-break: break-word;
+}
+
+/* Wave Visualization */
+.wave-canvas {
+  background-color: #000000;
+  border: 1px solid #808080;
+  width: 100%;
+  height: 200px;
+}
+
+/* JSON Display */
+.json-display {
+  background-color: #ffffff;
+  border: 1px inset #c0c0c0;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+/* Zyrkom Theme Colors */
+.zyrkom-accent {
+  color: #28276E;
+}
+
+.zyrkom-highlight {
+  color: #EC5631;
+}

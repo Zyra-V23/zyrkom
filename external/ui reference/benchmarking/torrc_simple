@@ -1,0 +1,11 @@
+# Configuración simple de Tor
+SocksPort 9050
+ControlPort 9051
+DataDirectory ./tor_data
+
+# Hidden Service
+HiddenServiceDir ./tor_hidden_service
+HiddenServicePort 80 127.0.0.1:3000
+
+# Logging
+Log notice file ./tor.log 

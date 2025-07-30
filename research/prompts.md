@@ -443,4 +443,19 @@ check on all the code, make it shorter and more professional if possible, look f
 6. Manejar warnings de CRLF en Windows apropiadamente
 **Resultado**: [EN PROGRESO - Setup git remote y push inicial]
 
+---
+
+### [2025-01-27 17:00] - Prompt de Zyra
+**Prompt Original**: "@benchmarking/ vamos a crear la ui ahora, coge de ahi la referencia de la UI, el estilo de windows 95, sus "apps" simulando iconos de windows.... basicamente estudia todo ese repo y entiendelo, luego conservaremos solo el doom y un icono .svg que sta en el root que usaras como "icono" (quitale las letras, quedate solo el icono redondo) para conectar a nuestro frontend todo lo necesario para que, al ejecutar el """programa""" (llamalo zyrkom) este script del himno de españa se genere, mostrando unas ondas reales que muestren la interpretacion real de esas ondas, y al final, genere los dos archivos. copia el background y el estilo windows :) recuerda, nos quedamos solo la app de doom y conectamos el test del himno. que al acabar muestre el .json en pantalla su contenido y que permita tambien descargar el .json y el .zkp si quiere el usuario"
+**Mi Interpretación**: Crear una UI estilo Windows 95 basada en el repositorio de benchmarking, manteniendo solo el icono de DOOM y usando el logo circular de Zyrkom (sin texto). La UI debe ejecutar el test del himno español, mostrar visualización de ondas en tiempo real, generar los archivos .zkp y .json, mostrar el JSON en pantalla y permitir descarga de ambos archivos.
+**Contexto**: Necesitamos una interfaz visual profesional que demuestre las capacidades de Zyrkom de forma accesible
+**Plan de Acción**: 
+1. Extraer el icono circular del SVG sin texto
+2. Crear estructura UI con React/TypeScript estilo Windows 95
+3. Copiar estilos y backgrounds del repositorio benchmarking
+4. Crear ZyrkomWindow con visualización de ondas
+5. Conectar backend para ejecutar el test del himno
+6. Implementar descarga de archivos generados
+**Resultado**: UI Windows 95 completa con todas las funcionalidades implementadas
+
 --- 

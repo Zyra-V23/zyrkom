@@ -1,0 +1,725 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-pixel: 'Press Start 2P', monospace;
+  --color-bg: #008080;
+  --color-bg-window: #000080;
+  --color-primary: #00ff00;
+  --color-secondary: #00aa00;
+  --color-accent: #ff0066;
+  --color-error: #ff0000;
+  --color-success: #00ff00;
+  --color-text: #00ff00;
+  --color-text-bright: #00ff00;
+  --color-text-dim: #006600;
+  --color-border: #000080;
+  --scanline-opacity: 0.2;
+  --bg-primary: #000040;
+  --text-primary: #00ff00;
+  --text-accent: #ffffff;
+  --font-size-base: 12px;
+  --window-opacity: 0.95;
+  --animation-duration: 0.3s;
+  --transition-duration: 0.2s;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background: url('/most-famous-windows-95-desktop-abdvzrjfnw81471k.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: var(--text-primary);
+  font-family: var(--font-pixel);
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+  image-rendering: var(--image-rendering, pixelated);
+  image-rendering: var(--image-rendering, -moz-crisp-edges);
+  image-rendering: var(--image-rendering, crisp-edges);
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+}
+
+.app-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.crt-effect {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  z-index: 2;
+}
+
+.crt-effect::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.15) 50%
+  );
+  background-size: 100% 2px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: var(--scanline-opacity);
+}
+
+.crt-effect::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(18, 16, 16, 0.05);
+  opacity: 0.1;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* Common UI Elements */
+.retro-window {
+  border: 2px solid var(--color-border);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 2px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  opacity: var(--window-opacity);
+  transition: opacity var(--transition-duration);
+}
+
+.retro-window-title {
+  background-color: var(--color-bg-window);
+  color: var(--text-accent);
+  padding: 2px 4px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-family: var(--font-pixel);
+}
+
+.retro-menu {
+  display: flex;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom, rgba(64, 64, 64, 0.8), rgba(32, 32, 32, 0.9));
+  border-bottom: 4px solid rgba(176, 176, 192, 0.8);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-pixel);
+  height: 38px;
+  box-sizing: border-box;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 10;
+}
+
+.retro-menu-item {
+  padding: 8px 18px;
+  color: var(--menu-text-color, #ffffff);
+  background: linear-gradient(to bottom, rgba(176, 176, 192, 0.7), rgba(144, 144, 160, 0.8));
+  border-right: 2px solid rgba(176, 176, 192, 0.6);
+  border-bottom: none;
+  border-top: none;
+  border-left: none;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-duration), color var(--transition-duration);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.retro-menu-item:last-child {
+  border-right: none;
+}
+
+.retro-menu-item.active,
+.retro-menu-item:hover,
+.retro-menu-item:focus {
+  background-color: var(--color-accent) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid #b0b0c0;
+  border-bottom: none;
+  z-index: 2;
+}
+
+.retro-menu-item.bench-active {
+  background-color: var(--color-accent) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid #b0b0c0;
+  border-bottom: none;
+  z-index: 2;
+}
+
+.retro-button {
+  background-color: #404040;
+  border: 2px solid var(--color-border);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  text-align: center;
+  transition: background-color var(--transition-duration);
+}
+
+.retro-button:hover {
+  background-color: var(--color-accent);
+}
+
+.retro-button:active {
+  transform: translateY(2px);
+}
+
+/* Windows 95 Terminal Styles */
+.terminal-window {
+  background-color: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: 'Courier New', monospace;
+}
+
+.terminal-titlebar {
+  background: linear-gradient(to bottom, #008080 0%, #004040 100%);
+  color: #ffffff;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border-bottom: 1px solid #808080;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terminal-content {
+  background-color: #000000;
+  color: #c0c0c0;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.2;
+  overflow: auto;
+}
+
+.terminal-button {
+  width: 16px;
+  height: 14px;
+  background-color: #c0c0c0;
+  border: 1px outset #c0c0c0;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border var(--transition-duration);
+}
+
+.terminal-button:hover {
+  background-color: #d0d0d0;
+}
+
+.terminal-button:active {
+  border: 1px inset #c0c0c0;
+  background-color: #b0b0b0;
+}
+
+.terminal-prompt {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  color: #c0c0c0;
+}
+
+.terminal-input {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #c0c0c0;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  width: 100%;
+  caret-color: transparent;
+}
+
+.terminal-cursor {
+  position: absolute;
+  width: 8px;
+  height: 14px;
+  background-color: #c0c0c0;
+  animation: terminal-blink 1s infinite;
+}
+
+@keyframes terminal-blink {
+  0%, 50% { 
+    opacity: 1; 
+    background-color: #c0c0c0;
+  }
+  51%, 100% { 
+    opacity: 0; 
+  }
+}
+
+/* Legacy terminal styles - keeping for compatibility */
+.terminal-text {
+  padding: 16px;
+  white-space: pre-wrap;
+  font-family: var(--font-pixel);
+  font-size: var(--font-size-base);
+  line-height: 1.4;
+  color: var(--text-primary);
+  background-color: transparent;
+}
+
+.terminal-prompt {
+  padding: 0 16px 16px;
+  font-family: var(--font-pixel);
+  color: var(--text-primary);
+}
+
+.terminal-prompt input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-pixel);
+  font-size: var(--font-size-base);
+  width: calc(100% - 50px);
+}
+
+.typing-effect {
+  color: var(--text-primary);
+  font-family: var(--font-pixel);
+}
+
+.pixel-cursor {
+  width: 8px;
+  height: 12px;
+  background-color: var(--text-primary);
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.list-item {
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background-color var(--transition-duration);
+}
+
+.list-item.selected {
+  background-color: var(--color-accent);
+  color: var(--bg-primary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #333333;
+  border: 1px solid var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--text-primary);
+  transition: width var(--transition-duration);
+}
+
+.progress-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--bg-primary);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  font-weight: bold;
+  text-shadow: 1px 1px 0px var(--text-primary);
+}
+
+.retro-input {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  padding: 4px;
+  font-family: var(--font-pixel);
+  font-size: var(--font-size-base);
+}
+
+.retro-select {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  padding: 4px;
+  font-family: var(--font-pixel);
+  font-size: var(--font-size-base);
+}
+
+.flicker {
+  animation: flicker var(--animation-duration) infinite alternate;
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+/* Loading animation */
+.loading-dots {
+  font-size: 24px;
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0% { content: "."; }
+  33% { content: ".."; }
+  66% { content: "..."; }
+  100% { content: "."; }
+}
+
+/* Chart styles */
+.chart-container {
+  font-family: var(--font-pixel);
+}
+
+.chart-container canvas {
+  font-family: var(--font-pixel) !important;
+}
+
+/* Headers and text */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-pixel);
+  color: var(--text-primary);
+}
+
+/* Form elements */
+input, select, textarea, button {
+  font-family: var(--font-pixel);
+}
+
+/* Floating Windows Styles */
+.floating-window {
+  font-family: var(--font-pixel);
+  user-select: none;
+  z-index: 1000;
+  opacity: var(--window-opacity);
+  transition: opacity var(--transition-duration);
+}
+
+.floating-window .window-titlebar {
+  background: linear-gradient(to bottom, #0080ff 0%, #0060df 100%);
+  border-bottom: 1px solid #404040;
+}
+
+.floating-window .window-titlebar:active {
+  background: linear-gradient(to bottom, #0060df 0%, #0040bf 100%);
+}
+
+.floating-window .window-content {
+  font-size: var(--font-size-base);
+  line-height: 1.4;
+  color: #000000;
+}
+
+.floating-window .window-content h3 {
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  margin: 0 0 8px 0;
+}
+
+.floating-window .window-content input[type="range"] {
+  width: 100%;
+  height: 16px;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+  outline: none;
+}
+
+.floating-window .window-content input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+}
+
+.floating-window .window-content select {
+  background: #ffffff;
+  border: 1px inset #c0c0c0;
+  font-family: var(--font-pixel);
+  font-size: calc(var(--font-size-base) - 2px);
+}
+
+.floating-window .window-content button {
+  background: #c0c0c0;
+  border: 1px outset #c0c0c0;
+  font-family: var(--font-pixel);
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: background-color var(--transition-duration);
+}
+
+.floating-window .window-content button:hover {
+  background: #d0d0d0;
+}
+
+.floating-window .window-content button:active {
+  border: 1px inset #c0c0c0;
+  background: #b0b0b0;
+}
+
+/* Overlay para ventanas flotantes */
+.window-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  pointer-events: none;
+}
+
+/* Control de redimensionamiento */
+.resize-handle {
+  transition: opacity var(--transition-duration) ease;
+  opacity: 0.6;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+}
+
+.floating-window:hover .resize-handle {
+  opacity: 0.8;
+}
+
+/* Cursor personalizado para redimensionamiento */
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-bottom: 6px solid #808080;
+  pointer-events: none;
+}
+
+.resize-handle:hover::after {
+  border-bottom-color: #606060;
+}
+
+/* Windows 95 Desktop Icon Styles */
+.desktop-icon {
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.1s ease;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.desktop-icon:hover {
+  background: rgba(0, 0, 128, 0.1);
+  border: 1px dotted rgba(0, 0, 128, 0.3);
+}
+
+.desktop-icon.selected {
+  background: rgba(0, 0, 128, 0.3) !important;
+  border: 1px dotted #000080 !important;
+  box-shadow: inset 0 0 2px rgba(0, 0, 128, 0.5);
+}
+
+.desktop-icon.monster-mode {
+  animation: icon-pulse 2s infinite;
+}
+
+.desktop-icon.monster-mode:hover {
+  background: rgba(255, 0, 102, 0.2);
+  border: 1px dotted #ff0066;
+  box-shadow: 0 0 8px rgba(255, 0, 102, 0.4);
+}
+
+.desktop-icon.monster-mode.selected {
+  background: rgba(255, 0, 102, 0.4) !important;
+  border: 1px dotted #ff0066 !important;
+  box-shadow: inset 0 0 4px rgba(255, 0, 102, 0.6), 0 0 12px rgba(255, 0, 102, 0.5) !important;
+}
+
+@keyframes icon-pulse {
+  0% { 
+    filter: brightness(1) contrast(1);
+  }
+  50% { 
+    filter: brightness(1.1) contrast(1.1);
+  }
+  100% { 
+    filter: brightness(1) contrast(1);
+  }
+}
+
+/* Easter Egg Icon Styles - keeping for backward compatibility but updating */
+.easter-egg-icon {
+  position: fixed;
+  bottom: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-family: var(--font-pixel);
+  z-index: 1001;
+  transition: all var(--transition-duration) ease;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.easter-egg-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.easter-egg-icon:active {
+  transform: scale(0.9);
+}
+
+.easter-egg-icon.monster-mode {
+  background-color: #ff0066;
+  border: 2px solid #00ff00;
+  color: #00ff00;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(255, 0, 102, 0.5), inset 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+.easter-egg-icon.normal-mode {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(128, 128, 128, 0.8);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.easter-egg-icon img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  transition: filter var(--transition-duration) ease;
+}
+
+.easter-egg-icon:hover img {
+  filter: contrast(1.3) brightness(1.2) saturate(1.1);
+}
+
+@keyframes pulse {
+  0% { 
+    box-shadow: 0 0 10px rgba(255, 0, 102, 0.5), inset 0 0 5px rgba(0, 255, 0, 0.3);
+    border-color: #00ff00;
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(255, 0, 102, 0.8), inset 0 0 10px rgba(0, 255, 0, 0.5);
+    border-color: #00ff66;
+  }
+  100% { 
+    box-shadow: 0 0 10px rgba(255, 0, 102, 0.5), inset 0 0 5px rgba(0, 255, 0, 0.3);
+    border-color: #00ff00;
+  }
+}
+
+/* Windows 95 Minimize Animation */
+@keyframes minimize-to-taskbar {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.1) translateY(200px);
+    opacity: 0;
+  }
+}
+
+@keyframes restore-from-taskbar {
+  0% {
+    transform: scale(0.1) translateY(200px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.window-minimizing {
+  animation: minimize-to-taskbar 0.3s ease-in-out forwards;
+}
+
+.window-restoring {
+  animation: restore-from-taskbar 0.3s ease-in-out forwards;
+}
+
+/* Taskbar button highlight effect */
+.taskbar-button {
+  transition: all 0.1s ease;
+}
+
+.taskbar-button:hover {
+  background-color: #d4d0c8 !important;
+  border: '1px outset #c0c0c0' !important;
+}
+
+.taskbar-button:active {
+  border: '1px inset #c0c0c0' !important;
+  background-color: #b8b4ac !important;
+}

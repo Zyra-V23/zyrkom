@@ -1,66 +1,32 @@
 {
-  "name": "zyrkom-matrix-ui",
-  "version": "0.1.0",
-  "description": "Matrix-style frontend for Zyrkom Musical Cryptography Framework",
+  "name": "zyrkom-ui",
   "private": true,
-  "type": "module",
+  "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "tauri": "cargo tauri",
-    "tauri:dev": "cargo tauri dev",
-    "tauri:build": "cargo tauri build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "type-check": "tsc --noEmit"
+    "backend": "node backend/server.js",
+    "start": "concurrently \"npm run backend\" \"npm run dev\""
   },
   "dependencies": {
+    "concurrently": "^7.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "howler": "^2.2.4",
+    "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@tauri-apps/api": "^1.6.0",
-    "three": "^0.160.0",
-    "@react-three/fiber": "^8.15.0",
-    "@react-three/drei": "^9.92.0",
-    "framer-motion": "^10.16.0",
-    "lucide-react": "^0.303.0",
-    "clsx": "^2.0.0",
-    "react-hot-toast": "^2.4.1"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@types/three": "^0.160.0",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^8.55.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.6",
-    "typescript": "^5.2.2",
-    "vite": "^5.0.8"
-  },
-  "keywords": [
-    "zyrkom",
-    "musical-cryptography",
-    "zero-knowledge",
-    "matrix-ui",
-    "tauri",
-    "react",
-    "audio-visualization"
-  ],
-  "author": "Zyra & Claude (Zyrkom Development Team)",
-  "license": "Proprietary",
-  "homepage": "https://github.com/zyrkom/zyrkom",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zyrkom/zyrkom.git",
-    "directory": "zyrkom-ui"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.0"
   }
-} 
+}
