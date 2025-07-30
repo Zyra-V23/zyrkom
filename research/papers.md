@@ -1508,3 +1508,23 @@ Este Matrix UI convierte Zyrkom en un **producto demo-ready** que puede:
 - Cross-browser compatible con roundRect() fallbacks
 **Conclusión**: Los 3 modos visualization ahora son consistentemente smooth y usan espacio completo
 **Próximo paso**: Test todos los modos + backend spectrum generation + commit final
+
+---
+
+#### [2025-01-27 19:00] - 🐛 BUGFIX: WEBSOCKET ERROR STATE NOT CLEARING  
+**Acción**: Debug y fix del error "Error de conexión WebSocket con el backend" persistente en UI
+**Método**: Analysis de state management + error clearing en ws.onopen
+**Resultado**: 
+- ✅ Bug identificado: setError(null) faltante en ws.onopen success callback
+- ✅ Fix aplicado: setError(null) cuando WebSocket conecta exitosamente 
+- ✅ Improved error handling: Clear errors en connectWebSocket() attempt
+- ✅ Enhanced reconnection: Better status messages durante reconnection
+- ✅ ws.onclose mejorado: Solo show error si abnormal closure (code !== 1000)
+- ✅ Test verification: WebSocket test confirma conectividad correcta
+**Validación**: 
+- WebSocket backend funcionando perfectamente (test-websocket.js exitoso)
+- Conexión establecida correctamente pero error UI no se limpiaba
+- State race condition: error persistía después de successful connection
+- Fix simple pero crítico para UX smooth
+**Conclusión**: Error state management corregido - UI debería actualizar status correctamente
+**Próximo paso**: Test UI refresh + verificar error clearing en tiempo real

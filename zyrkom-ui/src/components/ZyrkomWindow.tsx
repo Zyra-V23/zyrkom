@@ -80,6 +80,7 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
     
     setConnectionStatus('connecting');
+    setError(null); // Clear any previous errors when attempting to connect
     const ws = new WebSocket('ws://localhost:8081');
     wsRef.current = ws;
 
@@ -87,6 +88,7 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
       console.log('🔗 WebSocket connected to Zyrkom backend');
       setConnectionStatus('connected');
       setStatus('🔗 Conectado al servidor Zyrkom - Listo para generar');
+      setError(null); // 🔧 FIX: Clear any previous connection errors
       
       // Clear any pending reconnection
       if (reconnectTimeoutRef.current) {
@@ -167,12 +169,18 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
       setError('Error de conexión WebSocket con el backend');
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected, attempting reconnection...');
+    ws.onclose = (event) => {
+      console.log(`WebSocket disconnected (code: ${event.code}), attempting reconnection...`);
       setConnectionStatus('disconnected');
+      
+      // Only show error if it was an abnormal closure
+      if (event.code !== 1000) { // 1000 = normal closure
+        setStatus('🔄 Conexión perdida, reconectando en 3 segundos...');
+      }
       
       // Auto-reconnect after 3 seconds
       reconnectTimeoutRef.current = setTimeout(() => {
+        setStatus('🔄 Reconectando al servidor...');
         connectWebSocket();
       }, 3000);
     };

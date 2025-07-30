@@ -24,17 +24,28 @@ app.get('/health', (req, res) => {
 // WebSocket server for real-time audio streaming
 const wss = new WebSocket.Server({ port: 8081 });
 
+console.log('🔗 WebSocket server running on ws://localhost:8081');
+
 // Store active connections
 let activeConnections = new Set();
 
 wss.on('connection', (ws) => {
-  console.log('New WebSocket connection established');
+  console.log('✅ New WebSocket connection established');
   activeConnections.add(ws);
   
   ws.on('close', () => {
     activeConnections.delete(ws);
-    console.log('WebSocket connection closed');
+    console.log('❌ WebSocket connection closed');
   });
+  
+  ws.on('error', (error) => {
+    console.error('🚨 WebSocket error:', error);
+    activeConnections.delete(ws);
+  });
+});
+
+wss.on('error', (error) => {
+  console.error('🚨 WebSocket Server error:', error);
 });
 
 // Function to generate realistic audio buffer from frequencies
@@ -382,5 +393,8 @@ app.get('/download-zkp', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Zyrkom backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Zyrkom backend server running on http://localhost:${PORT}`);
+  console.log(`🔗 WebSocket server ready on ws://localhost:8081`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🎵 Ready for Spanish Anthem ZK proof generation!`);
 });
