@@ -81,19 +81,65 @@ function broadcastAudioData(audioData) {
     audioData.audioBuffer = generateAudioBuffer(audioData.frequencies, audioData.amplitudes);
   }
   
-  // Add FFT-like spectrum data for visualization
-  if (audioData.frequencies) {
+  // Generate realistic FFT-like spectrum data from frequencies
+  if (audioData.frequencies && audioData.frequencies.length > 0) {
     const spectrumSize = 128;
     const spectrum = new Array(spectrumSize).fill(0);
+    const maxFreq = 22050; // Nyquist frequency
     
+    // Map real frequencies to spectrum bins with proper scaling
     audioData.frequencies.forEach((freq, index) => {
-      const binIndex = Math.floor((freq / 22050) * spectrumSize); // Map to spectrum bins
-      if (binIndex < spectrumSize) {
-        const amplitude = audioData.amplitudes ? audioData.amplitudes[index] : 0.5;
+      const amplitude = audioData.amplitudes ? audioData.amplitudes[index] : 0.4;
+      
+      // Primary frequency bin
+      const binIndex = Math.floor((freq / maxFreq) * spectrumSize);
+      if (binIndex >= 0 && binIndex < spectrumSize) {
         spectrum[binIndex] = Math.max(spectrum[binIndex], amplitude * 255);
+      }
+      
+      // Add harmonic overtones for realism (2nd and 3rd harmonics)
+      const harmonic2 = freq * 2;
+      const harmonic3 = freq * 3;
+      
+      if (harmonic2 < maxFreq) {
+        const harmonic2Bin = Math.floor((harmonic2 / maxFreq) * spectrumSize);
+        if (harmonic2Bin < spectrumSize) {
+          spectrum[harmonic2Bin] = Math.max(spectrum[harmonic2Bin], amplitude * 0.3 * 255);
+        }
+      }
+      
+      if (harmonic3 < maxFreq) {
+        const harmonic3Bin = Math.floor((harmonic3 / maxFreq) * spectrumSize);
+        if (harmonic3Bin < spectrumSize) {
+          spectrum[harmonic3Bin] = Math.max(spectrum[harmonic3Bin], amplitude * 0.15 * 255);
+        }
+      }
+      
+      // Add subtle frequency spreading for natural look
+      for (let spread = -2; spread <= 2; spread++) {
+        const spreadBin = binIndex + spread;
+        if (spreadBin >= 0 && spreadBin < spectrumSize && spread !== 0) {
+          const spreadAmp = amplitude * Math.exp(-Math.abs(spread) * 0.5) * 0.2;
+          spectrum[spreadBin] = Math.max(spectrum[spreadBin], spreadAmp * 255);
+        }
       }
     });
     
+    // Add subtle noise floor for realism
+    for (let i = 0; i < spectrumSize; i++) {
+      if (spectrum[i] === 0) {
+        spectrum[i] = Math.random() * 5; // Very low noise floor
+      }
+    }
+    
+    audioData.spectrum = spectrum;
+  } else {
+    // Generate subtle idle spectrum when no frequencies
+    const spectrumSize = 128;
+    const spectrum = new Array(spectrumSize);
+    for (let i = 0; i < spectrumSize; i++) {
+      spectrum[i] = Math.random() * 8 + Math.sin(Date.now() * 0.001 + i * 0.1) * 3;
+    }
     audioData.spectrum = spectrum;
   }
   

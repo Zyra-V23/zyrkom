@@ -269,60 +269,208 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   };
 
   const drawSpectrum = (ctx: CanvasRenderingContext2D, spectrum: number[], w: number, h: number) => {
+    if (!spectrum || spectrum.length === 0) return;
+    
     const barWidth = w / spectrum.length;
+    const maxHeight = h * 0.9; // Use 90% of available height
+    const baseY = h - 20; // Leave space at bottom
+    
+    // Animated time-based effects
+    const time = timeRef.current;
+    const hueShift = (time * 20) % 360;
     
     spectrum.forEach((magnitude, index) => {
-      const barHeight = (magnitude / 255) * h * 0.8;
+      const normalizedMag = Math.max(0, Math.min(1, magnitude / 255));
+      const barHeight = normalizedMag * maxHeight;
       const x = index * barWidth;
-      const y = h - barHeight;
+      const y = baseY - barHeight;
       
-      // Color based on frequency range
-      const hue = (index / spectrum.length) * 240; // Blue to red spectrum
-      const saturation = 80 + (magnitude / 255) * 20; // More saturated for louder
-      const lightness = 40 + (magnitude / 255) * 40;
+      // Enhanced color mapping with animation
+      const frequencyRatio = index / spectrum.length;
+      const baseHue = (frequencyRatio * 300 + hueShift) % 360; // Extended range + animation
+      const saturation = 70 + normalizedMag * 30; // Dynamic saturation
+      const lightness = 45 + normalizedMag * 35; // Dynamic brightness
       
-      ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-      ctx.fillRect(x, y, barWidth - 1, barHeight);
+      // Create vertical gradient for each bar
+      const gradient = ctx.createLinearGradient(x, y, x, baseY);
+      gradient.addColorStop(0, `hsl(${baseHue}, ${saturation + 20}%, ${lightness + 20}%)`);
+      gradient.addColorStop(0.6, `hsl(${baseHue}, ${saturation}%, ${lightness}%)`);
+      gradient.addColorStop(1, `hsl(${baseHue}, ${saturation - 10}%, ${lightness - 15}%)`);
       
-      // Add glow for prominent frequencies
-      if (magnitude > 100) {
-        ctx.shadowColor = `hsl(${hue}, 100%, 60%)`;
-        ctx.shadowBlur = 5;
-        ctx.fillRect(x, y, barWidth - 1, barHeight);
+      // Draw main bar with rounded top
+      ctx.fillStyle = gradient;
+      const barW = barWidth - 2;
+      
+      // Rounded rectangle for smoother look (with fallback)
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(x + 1, y, barW, barHeight, [3, 3, 0, 0]); // Rounded top
+      } else {
+        // Fallback for browsers without roundRect support
+        ctx.rect(x + 1, y, barW, barHeight);
+      }
+      ctx.fill();
+      
+      // Add glow effect for prominent frequencies
+      if (normalizedMag > 0.3) {
+        ctx.shadowColor = `hsl(${baseHue}, 100%, 70%)`;
+        ctx.shadowBlur = 8 + normalizedMag * 12; // Dynamic blur
+        ctx.globalAlpha = 0.7;
+        ctx.fill();
         ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      }
+      
+      // Add peak indicators for very high frequencies
+      if (normalizedMag > 0.8) {
+        const peakY = y - 5;
+        ctx.fillStyle = `hsl(${baseHue}, 100%, 90%)`;
+        ctx.fillRect(x + barW/3, peakY, barW/3, 3);
+        
+        // Peak glow
+        ctx.shadowColor = `hsl(${baseHue}, 100%, 80%)`;
+        ctx.shadowBlur = 10;
+        ctx.fillRect(x + barW/3, peakY, barW/3, 3);
+        ctx.shadowBlur = 0;
+      }
+    });
+    
+    // Draw frequency labels for key points
+    const labelPoints = [0, Math.floor(spectrum.length * 0.25), Math.floor(spectrum.length * 0.5), Math.floor(spectrum.length * 0.75), spectrum.length - 1];
+    ctx.fillStyle = '#ffffff88';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    
+    labelPoints.forEach(index => {
+      if (index < spectrum.length) {
+        const freq = (index / spectrum.length) * 22050; // Nyquist frequency
+        const x = index * barWidth + barWidth/2;
+        ctx.fillText(`${freq.toFixed(0)}Hz`, x, h - 5);
       }
     });
   };
 
   const drawFrequencyBars = (ctx: CanvasRenderingContext2D, frequencies: number[], amplitudes: number[], w: number, h: number) => {
-    if (frequencies.length === 0) return;
+    if (!frequencies || frequencies.length === 0) return;
 
-    const barWidth = w / Math.max(frequencies.length, 8);
+    // Calculate optimal bar spacing to use full width
+    const totalBars = Math.max(frequencies.length, 1);
+    const barWidth = (w - 40) / totalBars; // Leave margins
+    const maxBarHeight = h * 0.85; // Use 85% of height
+    const baseY = h - 30; // Leave space for labels
+    
+    // Time-based animations
+    const time = timeRef.current;
+    const animationPhase = time * 2;
     
     frequencies.forEach((freq, index) => {
-      const amplitude = amplitudes[index] || 0.5;
-      const normalizedFreq = Math.min(freq / 2000, 1); // Normalize to 0-1
-      const barHeight = amplitude * h * 0.7;
+      const amplitude = amplitudes[index] || 0;
+      const normalizedFreq = Math.min(freq / 2000, 1); // Real frequency normalization
+      const normalizedAmp = Math.max(0, Math.min(1, amplitude));
       
-      const x = index * barWidth;
-      const y = h - barHeight;
+      // Enhanced bar height calculation with smooth scaling
+      const barHeight = normalizedAmp * maxBarHeight;
+      const x = 20 + index * barWidth; // Start with margin
+      const y = baseY - barHeight;
       
-      // Color based on frequency
-      const hue = normalizedFreq * 180; // Green to cyan range
-      const saturation = 70 + amplitude * 30;
-      const lightness = 50 + amplitude * 30;
+      // Dynamic color based on real frequency and amplitude
+      const baseHue = normalizedFreq * 240 + (time * 10) % 60; // Blue to red + animation
+      const saturation = 75 + normalizedAmp * 25; // Amplitude affects saturation
+      const lightness = 50 + normalizedAmp * 30; // Amplitude affects brightness
       
-      ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-      ctx.fillRect(x + 2, y, barWidth - 4, barHeight);
+      // Create sophisticated gradient for each bar
+      const gradient = ctx.createLinearGradient(x, y, x, baseY);
+      gradient.addColorStop(0, `hsl(${baseHue + 20}, 100%, ${lightness + 25}%)`); // Bright top
+      gradient.addColorStop(0.3, `hsl(${baseHue}, ${saturation}%, ${lightness}%)`); // Main color
+      gradient.addColorStop(0.7, `hsl(${baseHue}, ${saturation - 10}%, ${lightness - 10}%)`); // Darker middle
+      gradient.addColorStop(1, `hsl(${baseHue - 15}, ${saturation - 20}%, ${lightness - 20}%)`); // Dark bottom
       
-      // Add frequency label for taller bars
-      if (barHeight > h * 0.3) {
+      ctx.fillStyle = gradient;
+      
+      // Draw main bar with smooth rounded edges
+      const barW = Math.max(4, barWidth - 6); // Minimum width
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(x + 3, y, barW, barHeight, [4, 4, 2, 2]); // Rounded corners
+      } else {
+        // Fallback for browsers without roundRect support
+        ctx.rect(x + 3, y, barW, barHeight);
+      }
+      ctx.fill();
+      
+      // Add pulsating glow effect based on amplitude
+      if (normalizedAmp > 0.2) {
+        const glowIntensity = normalizedAmp + Math.sin(animationPhase + index * 0.5) * 0.2;
+        ctx.shadowColor = `hsl(${baseHue}, 100%, 80%)`;
+        ctx.shadowBlur = 5 + glowIntensity * 15;
+        ctx.globalAlpha = 0.6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      }
+      
+      // Add animated peak indicator for high amplitudes
+      if (normalizedAmp > 0.7) {
+        const peakAnimation = Math.sin(animationPhase * 3 + index) * 0.3 + 0.7;
+        const peakY = y - 8;
+        const peakHeight = 4;
+        
+        ctx.fillStyle = `hsl(${baseHue + 40}, 100%, ${85 + peakAnimation * 15}%)`;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x + barW/4, peakY, barW/2, peakHeight, 2);
+        } else {
+          // Fallback for browsers without roundRect support
+          ctx.rect(x + barW/4, peakY, barW/2, peakHeight);
+        }
+        ctx.fill();
+        
+        // Peak glow
+        ctx.shadowColor = `hsl(${baseHue + 40}, 100%, 90%)`;
+        ctx.shadowBlur = 12;
+        ctx.globalAlpha = peakAnimation;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      }
+      
+      // Real frequency labels with smart positioning
+      if (barHeight > maxBarHeight * 0.2 || index % Math.max(1, Math.floor(totalBars / 8)) === 0) {
         ctx.fillStyle = '#ffffff';
-        ctx.font = '10px monospace';
+        ctx.font = 'bold 9px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(`${freq.toFixed(0)}Hz`, x + barWidth/2, y - 5);
+        
+        // Frequency value
+        const labelY = barHeight > 40 ? y - 12 : baseY + 15;
+        ctx.fillText(`${freq.toFixed(0)}Hz`, x + barW/2, labelY);
+        
+        // Amplitude percentage for debugging/real data verification
+        if (normalizedAmp > 0.5) {
+          ctx.fillStyle = '#ffff88';
+          ctx.font = '7px monospace';
+          ctx.fillText(`${(normalizedAmp * 100).toFixed(0)}%`, x + barW/2, labelY + 10);
+        }
       }
     });
+    
+    // Draw bottom axis line
+    ctx.strokeStyle = '#ffffff44';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20, baseY + 2);
+    ctx.lineTo(w - 20, baseY + 2);
+    ctx.stroke();
+    
+    // Real-time data info
+    ctx.fillStyle = '#00ff88';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`🎵 Real Frequencies: ${frequencies.length} active`, 10, 20);
+    
+    const avgFreq = frequencies.reduce((a, b) => a + b, 0) / frequencies.length;
+    ctx.fillStyle = '#88ffff';
+    ctx.font = '9px monospace';
+    ctx.fillText(`Avg: ${avgFreq.toFixed(1)}Hz`, 10, 35);
   };
 
   const drawNotesOverlay = (ctx: CanvasRenderingContext2D, notes: string[], frequencies: number[], w: number, h: number) => {
