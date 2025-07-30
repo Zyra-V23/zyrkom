@@ -1,9 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import FloatingWindow from './FloatingWindow';
-import { Download, Play, Square } from 'lucide-react';
+import AudioVisualizer from './AudioVisualizer';
+import { Download } from 'lucide-react';
 
 interface ZyrkomWindowProps {
   onClose: () => void;
+}
+
+interface AudioData {
+  frequencies: number[];
+  amplitudes: number[];
+  notes?: string[];
+  durations?: number[];
+  audioBuffer?: number[];
+  spectrum?: number[];
+  timestamp: number;
+  isPlaying?: boolean;
 }
 
 interface ZKProofData {
@@ -41,73 +53,135 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
   const [progress, setProgress] = useState(0);
   const [zkProofData, setZkProofData] = useState<ZKProofData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>('Listo para generar Himno de España');
+  const [status, setStatus] = useState<string>('🎵 Listo para generar Himno de España');
   const [output, setOutput] = useState<string[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const [audioData, setAudioData] = useState<AudioData | null>(null);
+  const [harmonicData, setHarmonicData] = useState<{cents: number[], timestamp: number} | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
+  
   const wsRef = useRef<WebSocket | null>(null);
-  const frequencyDataRef = useRef<number[]>([]);
-  const timeRef = useRef<number>(0);
+  const reconnectTimeoutRef = useRef<number | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
       }
     };
   }, []);
 
-  const drawWaveform = () => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Simple default visualization
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw grid
-    ctx.strokeStyle = '#00ff0033';
-    ctx.lineWidth = 1;
+  // WebSocket connection management with auto-reconnect
+  const connectWebSocket = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) return;
     
-    // Horizontal lines
-    for (let i = 0; i <= 10; i++) {
-      const y = (canvas.height / 10) * i;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
-    }
-    
-    // Vertical lines
-    for (let i = 0; i <= 20; i++) {
-      const x = (canvas.width / 20) * i;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
-    }
+    setConnectionStatus('connecting');
+    const ws = new WebSocket('ws://localhost:8081');
+    wsRef.current = ws;
 
-    // Center text
-    ctx.fillStyle = '#00ff00';
-    ctx.font = '14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('Audio Waveform Visualization', canvas.width / 2, canvas.height / 2);
-  };
+    ws.onopen = () => {
+      console.log('🔗 WebSocket connected to Zyrkom backend');
+      setConnectionStatus('connected');
+      setStatus('🔗 Conectado al servidor Zyrkom - Listo para generar');
+      
+      // Clear any pending reconnection
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+    };
 
-  // Initialize canvas visualization on mount
-  useEffect(() => {
-    drawWaveform();
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        
+        switch (message.type) {
+          case 'status':
+            setStatus(message.message);
+            break;
+            
+          case 'output':
+            setOutput(prev => [...prev.slice(-50), message.data]); // Keep last 50 lines
+            break;
+            
+          case 'audio-start':
+            setIsPlaying(true);
+            setStatus('🎵 ¡Reproduciendo Himno de España en tiempo real!');
+            break;
+            
+          case 'audio-data':
+            if (message.data) {
+              setAudioData(message.data);
+              if (message.data.isPlaying !== undefined) {
+                setIsPlaying(message.data.isPlaying);
+              }
+            }
+            break;
+            
+          case 'harmonic-data':
+            if (message.data) {
+              setHarmonicData(message.data);
+            }
+            break;
+            
+          case 'zk-progress':
+            setProgress(prev => Math.min(prev + 5, 95));
+            if (message.stage) {
+              setStatus(message.message || `🔐 Progreso ZK: ${message.stage}`);
+            }
+            break;
+            
+          case 'complete':
+            setIsGenerating(false);
+            setProgress(100);
+            setIsPlaying(false);
+            setStatus('✅ ¡Himno de España con prueba ZK generado exitosamente!');
+            
+            if (message.data?.json_data) {
+              setZkProofData(message.data.json_data);
+            }
+            break;
+            
+          case 'error':
+            setError(message.message);
+            setIsGenerating(false);
+            setIsPlaying(false);
+            setStatus('❌ Error en la generación');
+            break;
+            
+          default:
+            console.log('Unknown WebSocket message type:', message.type);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setConnectionStatus('disconnected');
+      setError('Error de conexión WebSocket con el backend');
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket disconnected, attempting reconnection...');
+      setConnectionStatus('disconnected');
+      
+      // Auto-reconnect after 3 seconds
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connectWebSocket();
+      }, 3000);
+    };
   }, []);
 
-  const startVisualization = () => {
-    console.log('🎵 Starting visualization...');
-    setIsPlaying(true);
-  };
+  // Initialize WebSocket connection
+  useEffect(() => {
+    connectWebSocket();
+  }, [connectWebSocket]);
 
   const generateSpanishAnthem = async () => {
     setIsGenerating(true);
@@ -144,7 +218,6 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
         setZkProofData(data.json_data);
         setStatus('✅ ¡Himno generado exitosamente!');
         setProgress(100);
-        startVisualization();
       } else {
         throw new Error('No se pudo generar la prueba ZK');
       }
@@ -216,15 +289,33 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Waveform Visualization */}
+        {/* Audio Visualization */}
         <div className="mb-4">
-          <h3 className="text-sm font-bold mb-2">Audio Waveform</h3>
-          <canvas
-            ref={canvasRef}
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-bold">🎵 Real-Time Audio Visualization</h3>
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${
+                connectionStatus === 'connected' ? 'bg-green-400' : 
+                connectionStatus === 'connecting' ? 'bg-yellow-400' : 'bg-red-400'
+              }`}></div>
+              <span className="text-xs text-gray-600">
+                {connectionStatus === 'connected' ? 'Connected' : 
+                 connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
+              </span>
+            </div>
+          </div>
+          <AudioVisualizer 
+            audioData={audioData}
+            isPlaying={isPlaying}
             width={750}
-            height={150}
-            className="wave-canvas"
+            height={180}
+            className="mb-2"
           />
+          {harmonicData && (
+            <div className="text-xs text-gray-500 font-mono">
+              🎼 Harmonic intervals: {harmonicData.cents.map(c => `${c.toFixed(0)} cents`).join(', ')}
+            </div>
+          )}
         </div>
 
         {/* Control Panel */}
@@ -249,11 +340,28 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
             </div>
           )}
 
-          {/* Status Display */}
-          <div className="mt-2 p-2 bg-black text-green-400 font-mono text-xs rounded">
-            <div className="mb-1">Status: {status}</div>
-            {isPlaying && (
-              <div className="text-yellow-400">🎵 Audio reproduciéndose en tiempo real...</div>
+          {/* Enhanced Status Display */}
+          <div className="mt-2 p-3 bg-black text-green-400 font-mono text-xs rounded border border-gray-600">
+            <div className="flex justify-between items-center mb-1">
+              <span>Status: {status}</span>
+              <span className="text-gray-400">
+                {audioData && `${audioData.frequencies?.length || 0} freq`}
+              </span>
+            </div>
+            {isPlaying && audioData && (
+              <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                <div className="text-yellow-400">
+                  🎵 Audio: {audioData.notes?.join(', ') || 'streaming...'}
+                </div>
+                <div className="text-cyan-400">
+                  📊 Data: {audioData.timestamp ? new Date(audioData.timestamp).toLocaleTimeString() : ''}
+                </div>
+              </div>
+            )}
+            {connectionStatus !== 'connected' && (
+              <div className="text-red-400 mt-1">
+                ⚠️ WebSocket: {connectionStatus}
+              </div>
             )}
           </div>
         </div>

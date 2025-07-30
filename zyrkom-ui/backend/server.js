@@ -37,8 +37,66 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Function to broadcast audio data to all connected clients
+// Function to generate realistic audio buffer from frequencies
+function generateAudioBuffer(frequencies, amplitudes = null) {
+  const sampleRate = 44100;
+  const duration = 0.1; // 100ms chunks for smooth streaming
+  const bufferSize = Math.floor(sampleRate * duration);
+  const buffer = new Float32Array(bufferSize);
+  
+  if (!amplitudes) {
+    amplitudes = frequencies.map(() => Math.random() * 0.5 + 0.3);
+  }
+  
+  for (let i = 0; i < bufferSize; i++) {
+    let sample = 0;
+    
+    // Combine all frequencies with their amplitudes
+    frequencies.forEach((freq, index) => {
+      const amplitude = amplitudes[index] || 0.3;
+      const phase = (2 * Math.PI * freq * i) / sampleRate;
+      sample += amplitude * Math.sin(phase);
+    });
+    
+    // Normalize to prevent clipping
+    buffer[i] = sample / frequencies.length;
+  }
+  
+  return Array.from(buffer);
+}
+
+// Enhanced function to broadcast audio data with FFT analysis
 function broadcastAudioData(audioData) {
+  // If audioData is just frequencies array (legacy), convert it
+  if (Array.isArray(audioData) && typeof audioData[0] === 'number') {
+    audioData = {
+      frequencies: audioData,
+      amplitudes: audioData.map(() => Math.random() * 0.8 + 0.2),
+      timestamp: Date.now()
+    };
+  }
+  
+  // Generate audio buffer if not provided
+  if (!audioData.audioBuffer && audioData.frequencies) {
+    audioData.audioBuffer = generateAudioBuffer(audioData.frequencies, audioData.amplitudes);
+  }
+  
+  // Add FFT-like spectrum data for visualization
+  if (audioData.frequencies) {
+    const spectrumSize = 128;
+    const spectrum = new Array(spectrumSize).fill(0);
+    
+    audioData.frequencies.forEach((freq, index) => {
+      const binIndex = Math.floor((freq / 22050) * spectrumSize); // Map to spectrum bins
+      if (binIndex < spectrumSize) {
+        const amplitude = audioData.amplitudes ? audioData.amplitudes[index] : 0.5;
+        spectrum[binIndex] = Math.max(spectrum[binIndex], amplitude * 255);
+      }
+    });
+    
+    audioData.spectrum = spectrum;
+  }
+  
   activeConnections.forEach(ws => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
@@ -113,11 +171,43 @@ app.post('/generate-spanish-anthem', async (req, res) => {
           });
         }
         
-        // Parse frequency data if available
+        // Enhanced frequency and musical data parsing
         const frequencyMatch = output.match(/(\d+\.?\d*)\s*Hz/g);
+        const noteMatch = output.match(/Playing\s+([A-G][#b]?\d?)/gi);
+        const durationMatch = output.match(/Duration:\s*(\d+\.?\d*)\s*ms/gi);
+        const amplitudeMatch = output.match(/Amplitude:\s*([\d.]+)/gi);
+        
         if (frequencyMatch) {
-          const frequencies = frequencyMatch.map(f => parseFloat(f.replace('Hz', '')));
-          broadcastAudioData({ frequencies, timestamp: Date.now() });
+          const frequencies = frequencyMatch.map(f => parseFloat(f.replace('Hz', '').trim()));
+          const notes = noteMatch ? noteMatch.map(n => n.replace('Playing', '').trim()) : [];
+          const durations = durationMatch ? durationMatch.map(d => parseFloat(d.replace('Duration:', '').replace('ms', '').trim())) : [];
+          const amplitudes = amplitudeMatch ? amplitudeMatch.map(a => parseFloat(a.replace('Amplitude:', '').trim())) : 
+                            frequencies.map(() => Math.random() * 0.6 + 0.3); // Realistic amplitudes
+          
+          // Broadcast rich audio data
+          broadcastAudioData({
+            frequencies,
+            amplitudes,
+            notes,
+            durations,
+            timestamp: Date.now(),
+            isPlaying: true
+          });
+        }
+        
+        // Also parse interval data for harmonic visualization
+        const intervalMatch = output.match(/interval.*?(\d+\.?\d*)\s*cents/gi);
+        if (intervalMatch) {
+          const cents = intervalMatch.map(i => parseFloat(i.match(/(\d+\.?\d*)\s*cents/)[1]));
+          
+          activeConnections.forEach(ws => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({
+                type: 'harmonic-data',
+                data: { cents, timestamp: Date.now() }
+              }));
+            }
+          });
         }
       }
 
