@@ -3,6 +3,7 @@ import FloatingWindow from './components/FloatingWindow';
 import DoomWindow from './components/DoomWindow';
 import ZyrkomWindow from './components/ZyrkomWindow';
 import MusicalDnaWindow from './components/MusicalDnaWindow';
+import ZKStudioWindow from './components/ZKStudioWindow';
 import { Howl } from 'howler';
 
 // Windows 95 startup sound (optional)
@@ -16,14 +17,17 @@ const App: React.FC = () => {
   const [showDoomWindow, setShowDoomWindow] = useState(false);
   const [showZyrkomWindow, setShowZyrkomWindow] = useState(false);
   const [showMusicalDnaWindow, setShowMusicalDnaWindow] = useState(false);
+  const [showZKStudioWindow, setShowZKStudioWindow] = useState(false);
   
   // Icon positions
   const [doomIconPosition, setDoomIconPosition] = useState({ x: 50, y: 50 });
   const [zyrkomIconPosition, setZyrkomIconPosition] = useState({ x: 50, y: 150 });
   const [musicalDnaIconPosition, setMusicalDnaIconPosition] = useState({ x: 50, y: 250 });
+  const [zkStudioIconPosition, setZkStudioIconPosition] = useState({ x: 50, y: 350 });
   const [isDraggingDoom, setIsDraggingDoom] = useState(false);
   const [isDraggingZyrkom, setIsDraggingZyrkom] = useState(false);
   const [isDraggingMusicalDna, setIsDraggingMusicalDna] = useState(false);
+  const [isDraggingZKStudio, setIsDraggingZKStudio] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
@@ -48,15 +52,27 @@ const App: React.FC = () => {
           x: e.clientX - dragOffset.x,
           y: e.clientY - dragOffset.y,
         });
+      } else if (isDraggingMusicalDna) {
+        setMusicalDnaIconPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        });
+      } else if (isDraggingZKStudio) {
+        setZkStudioIconPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y,
+        });
       }
     };
 
     const handleMouseUp = () => {
       setIsDraggingDoom(false);
       setIsDraggingZyrkom(false);
+      setIsDraggingMusicalDna(false);
+      setIsDraggingZKStudio(false);
     };
 
-    if (isDraggingDoom || isDraggingZyrkom) {
+    if (isDraggingDoom || isDraggingZyrkom || isDraggingMusicalDna || isDraggingZKStudio) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
@@ -65,7 +81,7 @@ const App: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDraggingDoom, isDraggingZyrkom, dragOffset]);
+  }, [isDraggingDoom, isDraggingZyrkom, isDraggingMusicalDna, isDraggingZKStudio, dragOffset]);
 
   const handleIconMouseDown = (icon: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,6 +97,8 @@ const App: React.FC = () => {
       setIsDraggingZyrkom(true);
     } else if (icon === 'musical-dna') {
       setIsDraggingMusicalDna(true);
+    } else if (icon === 'zk-studio') {
+      setIsDraggingZKStudio(true);
     }
     setSelectedIcon(icon);
   };
@@ -92,6 +110,8 @@ const App: React.FC = () => {
       setShowZyrkomWindow(true);
     } else if (icon === 'musical-dna') {
       setShowMusicalDnaWindow(true);
+    } else if (icon === 'zk-studio') {
+      setShowZKStudioWindow(true);
     }
   };
 
@@ -161,6 +181,26 @@ const App: React.FC = () => {
           <img src="/musical-dna-icon.svg" alt="Musical DNA" />
           <span>Musical DNA</span>
         </div>
+
+        {/* ZK Studio Icon */}
+        <div
+          className={`desktop-icon ${selectedIcon === 'zk-studio' ? 'selected' : ''}`}
+          style={{
+            position: 'absolute',
+            left: zkStudioIconPosition.x,
+            top: zkStudioIconPosition.y,
+          }}
+          onMouseDown={(e) => handleIconMouseDown('zk-studio', e)}
+          onDoubleClick={() => handleIconDoubleClick('zk-studio')}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedIcon('zk-studio');
+          }}
+          title="ZK Studio - Zero-Knowledge Digital Audio Workstation"
+        >
+          <img src="/zk-studio-icon.svg" alt="ZK Studio" />
+          <span>ZK Studio</span>
+        </div>
       </div>
 
       {/* Windows */}
@@ -174,6 +214,10 @@ const App: React.FC = () => {
 
       {showMusicalDnaWindow && (
         <MusicalDnaWindow onClose={() => setShowMusicalDnaWindow(false)} />
+      )}
+
+      {showZKStudioWindow && (
+        <ZKStudioWindow onClose={() => setShowZKStudioWindow(false)} />
       )}
 
       {/* Taskbar */}
@@ -194,6 +238,18 @@ const App: React.FC = () => {
             <button className="button-95 text-xs flex items-center gap-1">
               <img src="/zyrkom-icon.svg" alt="" width="16" height="16" />
               Zyrkom
+            </button>
+          )}
+          {showMusicalDnaWindow && (
+            <button className="button-95 text-xs flex items-center gap-1">
+              <img src="/musical-dna-icon.svg" alt="" width="16" height="16" />
+              Musical DNA
+            </button>
+          )}
+          {showZKStudioWindow && (
+            <button className="button-95 text-xs flex items-center gap-1">
+              <img src="/zk-studio-icon.svg" alt="" width="16" height="16" />
+              ZK Studio
             </button>
           )}
         </div>
