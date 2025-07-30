@@ -73,6 +73,13 @@ fn generate_dna(name: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Display the visual pattern
     println!("{}", dna.to_visual_pattern());
     
+    // Prepare filenames
+    let filename = format!("musical_dna_{}.json", name.to_lowercase().replace(" ", "_"));
+    let zkp_filename = format!("musical_dna_{}.zkp", name.to_lowercase().replace(" ", "_"));
+    
+    // Save to JSON file first
+    std::fs::write(&filename, serde_json::to_string_pretty(&dna)?)?;
+    
     // Generate ZK proof
     println!("\n🔐 Generating Zero-Knowledge Proof of Musical Identity...");
     match dna.generate_ownership_proof() {
@@ -83,7 +90,6 @@ fn generate_dna(name: &str) -> Result<(), Box<dyn std::error::Error>> {
             );
             
             // Save ZK proof to .zkp file
-            let zkp_filename = format!("musical_dna_{}.zkp", name.to_lowercase().replace(" ", "_"));
             match std::fs::write(&zkp_filename, &proof) {
                 Ok(()) => {
                     println!("💾 ZK Proof saved to: {}", zkp_filename.bright_cyan());
@@ -112,10 +118,7 @@ fn generate_dna(name: &str) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     
-    // Save to file
-    let filename = format!("musical_dna_{}.json", name.to_lowercase().replace(" ", "_"));
-    std::fs::write(&filename, serde_json::to_string_pretty(&dna)?)?;
-    println!("\n💾 Saved to: {}", filename.bright_green());
+    println!("\n💾 JSON saved to: {}", filename.bright_green());
     
     Ok(())
 }
