@@ -94,7 +94,7 @@ fn handle_parse(input: PathBuf, format: String) -> Result<()> {
             line: 0,
         })?;
 
-    let parser = ZyrkomParser::new();
+    let mut parser = ZyrkomParser::new();
     let elements = parser.parse_multiple(&content)?;
 
     match format.as_str() {
@@ -148,7 +148,7 @@ fn handle_prove(input: PathBuf, output: PathBuf, _gpu: bool) -> Result<()> {
 
     println!("🔮 Generating ZK proof...");
     
-    let parser = ZyrkomParser::new();
+    let mut parser = ZyrkomParser::new();
     let elements = parser.parse_multiple(&content)?;
     
     // Find first element that can generate constraints
@@ -226,7 +226,7 @@ fn handle_verify(proof_path: PathBuf, source_path: PathBuf, verbose: bool) -> Re
 
     // Parse the original source file to get the TRUE constraint system
     println!("  📝 Parsing original source file...");
-    let parser = zyrkom::ZyrkomParser::new();
+    let mut parser = zyrkom::ZyrkomParser::new();
     let elements = parser.parse_multiple(&source_content)?;
     
     // Generate the TRUSTED constraint system from source (same as proving)
@@ -285,7 +285,7 @@ fn handle_verify(proof_path: PathBuf, source_path: PathBuf, verbose: bool) -> Re
     println!("  ✅ Integrity checks PASSED - proof matches source");
 
     // Create verifier with TRUSTED constraint system from source
-    let verifier = zyrkom::ZyrkomVerifier::new(constraint_system)?;
+    let verifier = ZyrkomVerifier::new(constraint_system)?;
     let is_valid = verifier.verify(&proof)?;
     
     if is_valid {
@@ -312,7 +312,7 @@ fn handle_shell() -> Result<()> {
     println!("Save files with .zyrkom extension!");
     println!();
     
-    let parser = ZyrkomParser::new();
+    let mut parser = ZyrkomParser::new();
     
     loop {
         print!("zyrkom> ");
@@ -338,8 +338,8 @@ fn handle_shell() -> Result<()> {
                     
                     match element.to_constraints() {
                         Ok(constraints) => {
-                            if !constraints.is_empty() {
-                                println!("  ⚡ Generated {} ZK constraints", constraints.len());
+                            if constraints.constraint_count() > 0 {
+                                println!("  ⚡ Generated {} ZK constraints", constraints.constraint_count());
                             }
                         }
                         Err(e) => {

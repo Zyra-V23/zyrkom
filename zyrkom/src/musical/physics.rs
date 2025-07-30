@@ -214,6 +214,13 @@ impl MusicalNote {
         let new_frequency = self.frequency * interval.ratio();
         Self::from_frequency(new_frequency)
     }
+    
+    /// Play this note for a specified duration (audio feature)
+    #[cfg(feature = "test-audio")]
+    pub fn play_for_duration(&self, duration: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
+        use crate::utils::audio;
+        audio::play_frequency(self.frequency, duration.as_millis() as u64)
+    }
 }
 
 /// A chord is a collection of notes played simultaneously

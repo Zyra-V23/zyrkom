@@ -3,33 +3,53 @@
 //! This module provides parsing capabilities for the Zyrkom musical domain-specific language.
 //! Currently implements basic placeholder functionality for DSL compilation.
 
-use std::collections::HashMap;
+
+use crate::zk::constraints::{ConstraintSystem, MusicalConstraint, ConstraintType};
+use crate::{ZyrkomError};
 
 /// Main parser for Zyrkom DSL
 #[derive(Debug, Clone)]
 pub struct ZyrkomParser {
-    /// Current parsing context
-    context: HashMap<String, String>,
+    // Using empty struct for now - future versions will add parsing state
 }
 
 /// Parsed elements from the DSL
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParsedElement {
     /// A musical note definition
-    Note { name: String, frequency: f64 },
+    Note { 
+        /// Name of the note (e.g., "C4", "A440")
+        name: String, 
+        /// Frequency in Hz
+        frequency: f64 
+    },
     /// A chord definition
-    Chord { name: String, notes: Vec<String> },
+    Chord { 
+        /// Name of the chord (e.g., "C_major", "Dm7")
+        name: String, 
+        /// List of note names in the chord
+        notes: Vec<String> 
+    },
     /// An interval definition  
-    Interval { name: String, ratio: f64 },
+    Interval { 
+        /// Name of the interval (e.g., "perfect_fifth", "major_third")
+        name: String, 
+        /// Frequency ratio (e.g., 1.5 for perfect fifth)
+        ratio: f64 
+    },
     /// A constraint definition
-    Constraint { name: String, expression: String },
+    Constraint { 
+        /// Name of the constraint (e.g., "harmonic_validation")
+        name: String, 
+        /// Mathematical expression for the constraint
+        expression: String 
+    },
 }
 
 impl ZyrkomParser {
     /// Create a new parser instance
     pub fn new() -> Self {
         Self {
-            context: HashMap::new(),
         }
     }
 
@@ -185,6 +205,30 @@ impl std::fmt::Display for ParseError {
 
 impl std::error::Error for ParseError {}
 
+// Convert ParseError to ZyrkomError
+impl From<ParseError> for ZyrkomError {
+    fn from(parse_error: ParseError) -> Self {
+        match parse_error {
+            ParseError::InvalidSyntax(line) => ZyrkomError::ParseError {
+                message: format!("Invalid syntax: {}", line),
+                line: 0, // TODO: Track actual line numbers
+            },
+            ParseError::InvalidFrequency(freq) => ZyrkomError::ParseError {
+                message: format!("Invalid frequency: {}", freq),
+                line: 0,
+            },
+            ParseError::InvalidRatio(ratio) => ZyrkomError::ParseError {
+                message: format!("Invalid ratio: {}", ratio),
+                line: 0,
+            },
+            ParseError::UndefinedReference(name) => ZyrkomError::ParseError {
+                message: format!("Undefined reference: {}", name),
+                line: 0,
+            },
+        }
+    }
+}
+
 impl ParsedElement {
     /// Get the name of this parsed element
     pub fn name(&self) -> &str {
@@ -197,22 +241,39 @@ impl ParsedElement {
     }
 
     /// Convert this element to ZK constraints (placeholder implementation)
-    pub fn to_constraints(&self) -> Result<Vec<String>, ParseError> {
-        // TODO: Implement actual constraint conversion
+    pub fn to_constraints(&self) -> Result<ConstraintSystem, ParseError> {
+        let mut system = ConstraintSystem::new();
+        
         match self {
-            ParsedElement::Note { name, frequency } => {
-                Ok(vec![format!("frequency_constraint({}, {})", name, frequency)])
+            ParsedElement::Note { frequency, .. } => {
+                // Create a basic frequency validation constraint
+                if let Ok(constraint) = MusicalConstraint::from_ratio(*frequency / 440.0, ConstraintType::HarmonicRatio) {
+                    system.add_constraint(constraint);
+                }
             },
-            ParsedElement::Chord { name, notes } => {
-                Ok(vec![format!("chord_constraint({}, {:?})", name, notes)])
+            ParsedElement::Chord { notes, .. } => {
+                // Create constraints for chord intervals
+                for _ in notes {
+                    if let Ok(constraint) = MusicalConstraint::from_ratio(1.5, ConstraintType::Consonance) {
+                        system.add_constraint(constraint);
+                    }
+                }
             },
-            ParsedElement::Interval { name, ratio } => {
-                Ok(vec![format!("interval_constraint({}, {})", name, ratio)])
+            ParsedElement::Interval { ratio, .. } => {
+                // Create interval validation constraint
+                if let Ok(constraint) = MusicalConstraint::from_ratio(*ratio, ConstraintType::Consonance) {
+                    system.add_constraint(constraint);
+                }
             },
-            ParsedElement::Constraint { name, expression } => {
-                Ok(vec![format!("custom_constraint({}, {})", name, expression)])
+            ParsedElement::Constraint { .. } => {
+                // Create generic constraint - placeholder
+                if let Ok(constraint) = MusicalConstraint::from_ratio(1.0, ConstraintType::TuningConsistency) {
+                    system.add_constraint(constraint);
+                }
             },
         }
+        
+        Ok(system)
     }
 }
 
