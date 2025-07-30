@@ -61,40 +61,33 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
   
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<number | null>(null);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - close WebSocket cleanly
   useEffect(() => {
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        console.log('🔌 Closing WebSocket connection...');
+        wsRef.current.close(1000, 'Component unmounting');
       }
     };
   }, []);
 
-  // WebSocket connection management with auto-reconnect
+  // Simplified WebSocket connection - stable and permanent
   const connectWebSocket = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
     
+    console.log('🔗 Connecting to WebSocket...');
     setConnectionStatus('connecting');
-    setError(null); // Clear any previous errors when attempting to connect
+    setError(null);
+    
     const ws = new WebSocket('ws://localhost:8081');
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log('🔗 WebSocket connected to Zyrkom backend');
+      console.log('✅ WebSocket connected successfully');
       setConnectionStatus('connected');
-      setStatus('🔗 Conectado al servidor Zyrkom - Listo para generar');
-      setError(null); // 🔧 FIX: Clear any previous connection errors
-      
-      // Clear any pending reconnection
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
+      setStatus('🎵 Listo para generar Himno de España');
+      setError(null);
     };
 
     ws.onmessage = (event) => {
@@ -107,12 +100,12 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
             break;
             
           case 'output':
-            setOutput(prev => [...prev.slice(-50), message.data]); // Keep last 50 lines
+            setOutput(prev => [...prev.slice(-50), message.data]);
             break;
             
           case 'audio-start':
             setIsPlaying(true);
-            setStatus('🎵 ¡Reproduciendo Himno de España en tiempo real!');
+            setStatus('🎵 ¡Reproduciendo Himno de España!');
             break;
             
           case 'audio-data':
@@ -141,7 +134,7 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
             setIsGenerating(false);
             setProgress(100);
             setIsPlaying(false);
-            setStatus('✅ ¡Himno de España con prueba ZK generado exitosamente!');
+            setStatus('✅ ¡Himno generado exitosamente!');
             
             if (message.data?.json_data) {
               setZkProofData(message.data.json_data);
@@ -152,11 +145,7 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
             setError(message.message);
             setIsGenerating(false);
             setIsPlaying(false);
-            setStatus('❌ Error en la generación');
             break;
-            
-          default:
-            console.log('Unknown WebSocket message type:', message.type);
         }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
@@ -164,25 +153,19 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('❌ WebSocket connection failed:', error);
       setConnectionStatus('disconnected');
-      setError('Error de conexión WebSocket con el backend');
+      setError('No se puede conectar al backend. ¿Está corriendo el servidor?');
     };
 
     ws.onclose = (event) => {
-      console.log(`WebSocket disconnected (code: ${event.code}), attempting reconnection...`);
+      console.log('📴 WebSocket connection closed');
       setConnectionStatus('disconnected');
       
-      // Only show error if it was an abnormal closure
-      if (event.code !== 1000) { // 1000 = normal closure
-        setStatus('🔄 Conexión perdida, reconectando en 3 segundos...');
+      // Only set error for unexpected closures
+      if (event.code !== 1000 && event.code !== 1001) {
+        setStatus('⚠️ Conexión cerrada inesperadamente');
       }
-      
-      // Auto-reconnect after 3 seconds
-      reconnectTimeoutRef.current = setTimeout(() => {
-        setStatus('🔄 Reconectando al servidor...');
-        connectWebSocket();
-      }, 3000);
     };
   }, []);
 
@@ -367,8 +350,17 @@ const ZyrkomWindow: React.FC<ZyrkomWindowProps> = ({ onClose }) => {
               </div>
             )}
             {connectionStatus !== 'connected' && (
-              <div className="text-red-400 mt-1">
-                ⚠️ WebSocket: {connectionStatus}
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-red-400">
+                  ⚠️ WebSocket: {connectionStatus}
+                </div>
+                <button
+                  className="button-95 text-xs px-2 py-1"
+                  onClick={connectWebSocket}
+                  disabled={connectionStatus === 'connecting'}
+                >
+                  {connectionStatus === 'connecting' ? 'Conectando...' : '🔄 Reconectar'}
+                </button>
               </div>
             )}
           </div>

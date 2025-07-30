@@ -1528,3 +1528,25 @@ Este Matrix UI convierte Zyrkom en un **producto demo-ready** que puede:
 - Fix simple pero crítico para UX smooth
 **Conclusión**: Error state management corregido - UI debería actualizar status correctamente
 **Próximo paso**: Test UI refresh + verificar error clearing en tiempo real
+
+---
+
+#### [2025-01-27 19:15] - 🔧 SIMPLIFICATION: WEBSOCKET CONNECTION STABLE & PERMANENT
+**Acción**: Simplificación completa de la conexión WebSocket para estabilidad total
+**Método**: Eliminación de auto-reconnect + conexión única + manual reconnect button
+**Resultado**: 
+- ✅ Auto-reconnect ELIMINADO: No más loops de reconexión automática
+- ✅ Conexión única y estable: Una vez conectada, permanece hasta cerrar app
+- ✅ Cleanup simplificado: Solo close WebSocket en unmount con código 1000
+- ✅ Manual reconnect button: Usuario puede reconectar si es necesario
+- ✅ Error handling simplificado: Mensajes claros sin spam de reconexión
+- ✅ Estado limpio: Solo 3 estados (disconnected, connecting, connected)
+- ✅ Timeouts eliminados: No más reconnectTimeoutRef ni race conditions
+**Validación**: 
+- WebSocket se conecta UNA vez al abrir la app
+- Permanece conectada establemente durante toda la sesión
+- No hay intentos automáticos de reconexión que causen problemas
+- Manual control: botón de reconectar visible solo si se desconecta
+- Cleanup apropiado: close(1000) al cerrar componente
+**Conclusión**: Conexión WebSocket ahora simple, estable y predecible
+**Próximo paso**: Test final de estabilidad + no interrupciones durante uso
