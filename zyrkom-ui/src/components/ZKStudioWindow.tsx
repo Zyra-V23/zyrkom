@@ -474,8 +474,8 @@ const ZKStudioWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       title="🎛️ ZK Studio - Zero-Knowledge DAW"
       onClose={onClose}
       icon="/zk-studio-icon.svg"
-      initialWidth={900}
-      initialHeight={600}
+      initialWidth={1200}
+      initialHeight={800}
     >
       <div className="p-4 h-full bg-gray-900 text-white font-mono">
         {/* Header Controls */}
@@ -701,7 +701,7 @@ const ZKStudioWindow: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           </div>
 
           {/* File Browser & ZK Panel */}
-          <div className="w-80 space-y-4">
+          <div className="w-96 space-y-4">
             {/* File Browser */}
             <div className="bg-gray-800 p-4 rounded">
               <h3 className="text-lg font-bold mb-3 text-green-400">📁 File Browser</h3>
