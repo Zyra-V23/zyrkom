@@ -463,11 +463,32 @@ app.post('/generate-musical-dna', async (req, res) => {
           console.warn('⚠️ Could not read DNA JSON file, using parsed data');
         }
 
+        // Try to read the ZK proof file (.zkp)
+        const zkpFilename = `musical_dna_${name.toLowerCase().replace(/\s+/g, '_')}.zkp`;
+        const zkpFilepath = path.join(__dirname, '../../zyrkom', zkpFilename);
+        
+        let zkpExists = false;
+        let zkpSize = 0;
+        try {
+          const zkpStats = await fs.stat(zkpFilepath);
+          zkpExists = true;
+          zkpSize = zkpStats.size;
+        } catch (zkpErr) {
+          console.warn('⚠️ ZKP file not found, proof may not have been saved');
+        }
+
         console.log('✅ Musical DNA generated successfully:', dnaData.fingerprint);
+        console.log('📁 Files available:', { json: filename, zkp: zkpExists ? zkpFilename : 'not found' });
+        
         res.json({
           success: true,
           dna_data: dnaData,
-          raw_output: output
+          raw_output: output,
+          files: {
+            json_filename: filename,
+            zkp_filename: zkpExists ? zkpFilename : null,
+            zkp_size: zkpSize
+          }
         });
 
       } catch (parseErr) {
@@ -479,6 +500,51 @@ app.post('/generate-musical-dna', async (req, res) => {
   } catch (error) {
     console.error('❌ Musical DNA generation error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Download endpoints for Musical DNA files
+app.get('/download-musical-dna-json/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, '../../zyrkom', filename);
+    
+    // Validate filename to prevent directory traversal
+    if (!filename.match(/^musical_dna_[a-zA-Z0-9_]+\.json$/)) {
+      return res.status(400).json({ error: 'Invalid filename' });
+    }
+    
+    const fileExists = await fs.access(filepath).then(() => true).catch(() => false);
+    if (!fileExists) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    res.download(filepath, filename);
+  } catch (error) {
+    console.error('❌ Download JSON error:', error);
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
+app.get('/download-musical-dna-zkp/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filepath = path.join(__dirname, '../../zyrkom', filename);
+    
+    // Validate filename to prevent directory traversal
+    if (!filename.match(/^musical_dna_[a-zA-Z0-9_]+\.zkp$/)) {
+      return res.status(400).json({ error: 'Invalid filename' });
+    }
+    
+    const fileExists = await fs.access(filepath).then(() => true).catch(() => false);
+    if (!fileExists) {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    
+    res.download(filepath, filename);
+  } catch (error) {
+    console.error('❌ Download ZKP error:', error);
+    res.status(500).json({ error: 'Download failed' });
   }
 });
 

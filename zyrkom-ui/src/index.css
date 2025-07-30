@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Better font rendering for Musical DNA app */
+.musical-dna-text {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure good font rendering on Windows */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 :root {
   --font-pixel: 'Press Start 2P', monospace;
   --color-bg: #008080;

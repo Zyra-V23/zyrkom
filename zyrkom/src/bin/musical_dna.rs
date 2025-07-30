@@ -81,6 +81,18 @@ fn generate_dna(name: &str) -> Result<(), Box<dyn std::error::Error>> {
                 "ZK Proof".bright_green().bold(),
                 proof.len()
             );
+            
+            // Save ZK proof to .zkp file
+            let zkp_filename = format!("musical_dna_{}.zkp", name.to_lowercase().replace(" ", "_"));
+            match std::fs::write(&zkp_filename, &proof) {
+                Ok(()) => {
+                    println!("💾 ZK Proof saved to: {}", zkp_filename.bright_cyan());
+                }
+                Err(e) => {
+                    println!("⚠️ Warning: Could not save ZK proof file: {}", e);
+                }
+            }
+            
             println!("\n📋 Share your Musical DNA:");
             println!("   Fingerprint: {}", dna.fingerprint.bright_magenta().bold());
             println!("   Proof Hash: {}", 
@@ -89,6 +101,10 @@ fn generate_dna(name: &str) -> Result<(), Box<dyn std::error::Error>> {
                     .take(16)
                     .collect::<String>()
                     .bright_blue()
+            );
+            println!("   Files generated: {} + {}", 
+                filename.bright_green(), 
+                zkp_filename.bright_green()
             );
         }
         Err(e) => {
@@ -229,6 +245,18 @@ fn interactive_generation() -> Result<(), Box<dyn std::error::Error>> {
     match dna.generate_ownership_proof() {
         Ok(proof) => {
             println!("✅ {} successfully generated!", "ZK Proof".bright_green().bold());
+            
+            // Save ZK proof to .zkp file
+            let zkp_filename = format!("musical_dna_{}.zkp", name.to_lowercase().replace(" ", "_"));
+            match std::fs::write(&zkp_filename, &proof) {
+                Ok(()) => {
+                    println!("💾 ZK Proof saved to: {}", zkp_filename.bright_cyan());
+                }
+                Err(e) => {
+                    println!("⚠️ Warning: Could not save ZK proof file: {}", e);
+                }
+            }
+            
             println!("\n🎉 Congratulations, {}!", name.bright_yellow());
             println!("   Your Musical DNA is: {}", dna.fingerprint.bright_magenta().bold());
             println!("   This fingerprint is cryptographically unique to you!");
@@ -236,12 +264,14 @@ fn interactive_generation() -> Result<(), Box<dyn std::error::Error>> {
             // Save results
             let filename = format!("musical_dna_{}.json", name.to_lowercase().replace(" ", "_"));
             std::fs::write(&filename, serde_json::to_string_pretty(&dna)?)?;
-            println!("\n💾 Saved to: {}", filename.bright_green());
+            println!("\n💾 Files saved:");
+            println!("   📄 JSON: {}", filename.bright_green());
+            println!("   🔐 ZK Proof: {}", zkp_filename.bright_cyan());
             
             // Share instructions
             println!("\n📤 Share your Musical DNA:");
             println!("   1. Post your fingerprint: {}", dna.fingerprint.bright_magenta());
-            println!("   2. Upload your proof file to verify ownership");
+            println!("   2. Upload your proof files to verify ownership");
             println!("   3. Compare compatibility with friends!");
         }
         Err(e) => {
