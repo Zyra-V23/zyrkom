@@ -1,0 +1,6 @@
+// Test musical DSL for ZK proof generation
+note C4 = 261.63
+note E4 = 329.63  
+note G4 = 392.00
+chord C_major = C4 + E4 + G4
+interval perfect_fifth = 1.5

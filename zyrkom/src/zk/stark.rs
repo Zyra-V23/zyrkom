@@ -20,6 +20,7 @@ use stwo::prover::poly::BitReversedOrder;
 use stwo::core::air::Component;
 use stwo::prover::ComponentProver;
 use serde::{Serialize, Deserialize};
+use std::path::Path;
 
 /// A Zero-Knowledge proof of musical physics relationships
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,6 +44,77 @@ pub struct ProofMetadata {
     pub musical_ratios: Vec<f64>,
     /// Timestamp when proof was generated
     pub timestamp: u64,
+}
+
+/// JSON metadata output for ZK proof (similar to Circom/SnarkJS format)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ZyrkomProofJson {
+    /// Path to the binary proof file (.zkp)
+    pub proof_path: String,
+    /// Path to the source DSL file (.zyrkom)
+    pub source_path: String,
+    /// Musical constraint information
+    pub musical_constraints: Vec<ConstraintInfo>,
+    /// Public inputs for verification
+    pub public_inputs: Vec<PublicInput>,
+    /// Proof generation metadata
+    pub metadata: ProofGenerationInfo,
+    /// Circle STARK specific information
+    pub stark_info: StarkInfo,
+}
+
+/// Information about a musical constraint
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConstraintInfo {
+    /// Index of the constraint
+    pub index: usize,
+    /// Type of constraint (harmonic, consonance, etc.)
+    pub constraint_type: String,
+    /// Musical ratio being validated
+    pub ratio: f64,
+    /// Frequency values involved
+    pub frequencies: Vec<f64>,
+}
+
+/// Public input information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PublicInput {
+    /// Index in the public inputs array
+    pub index: usize,
+    /// Hexadecimal value
+    pub value: String,
+    /// Human-readable description
+    pub description: String,
+}
+
+/// Proof generation information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProofGenerationInfo {
+    /// When the proof was generated
+    pub timestamp: u64,
+    /// Duration of proof generation in milliseconds
+    pub generation_time_ms: u64,
+    /// Size of the proof in bytes
+    pub proof_size_bytes: usize,
+    /// Musical structure type
+    pub structure_type: String,
+    /// Version of Zyrkom used
+    pub zyrkom_version: String,
+}
+
+/// Circle STARK specific information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StarkInfo {
+    /// Security level (bits)
+    pub security_level: usize,
+    /// Field type used
+    pub field_type: String,
+    /// Number of trace columns
+    pub trace_columns: usize,
+    /// Log degree bound
+    pub log_degree_bound: usize,
+    /// FRI blowup factor
+    pub blowup_factor: usize,
 }
 
 /// Prover for generating ZK proofs of musical constraints
@@ -142,6 +214,86 @@ impl ZyrkomProver {
             stark_proof,
             public_inputs,
             metadata,
+        })
+    }
+
+    /// Generate JSON metadata for the proof (similar to Circom/SnarkJS output)
+    pub fn generate_proof_json(
+        &self, 
+        proof: &MusicalProof, 
+        proof_path: &Path, 
+        source_path: &Path,
+        generation_time_ms: u64
+    ) -> Result<ZyrkomProofJson> {
+        use crate::VERSION;
+        
+        // Extract musical constraints information
+        let musical_constraints: Vec<ConstraintInfo> = self.constraint_system.constraints
+            .iter()
+            .enumerate()
+            .map(|(index, constraint)| {
+                let constraint_type = match constraint.constraint_type {
+                    crate::zk::constraints::ConstraintType::HarmonicRatio => "harmonic_ratio",
+                    crate::zk::constraints::ConstraintType::OctaveEquivalence => "octave_equivalence", 
+                    crate::zk::constraints::ConstraintType::Consonance => "consonance",
+                    crate::zk::constraints::ConstraintType::IntervalSum => "interval_sum",
+                    crate::zk::constraints::ConstraintType::TuningConsistency => "tuning_consistency",
+                }.to_string();
+                
+                ConstraintInfo {
+                    index,
+                    constraint_type,
+                    ratio: constraint.ratio_f64,
+                    frequencies: vec![440.0 * constraint.ratio_f64, 440.0], // A4 reference
+                }
+            })
+            .collect();
+
+        // Convert public inputs to hex format with descriptions
+        let public_inputs: Vec<PublicInput> = proof.public_inputs
+            .iter()
+            .enumerate()
+            .map(|(index, &value)| {
+                let description = match index {
+                    0 => "Constraint count",
+                    1 => "Musical structure identifier", 
+                    _ => "Constraint coefficient",
+                };
+                
+                PublicInput {
+                    index,
+                    value: format!("0x{:x}", value),
+                    description: description.to_string(),
+                }
+            })
+            .collect();
+
+        // Create component to get STARK info
+        let component = crate::zk::component::ZyrkomComponent::new(self.constraint_system.clone())?;
+        
+        let stark_info = StarkInfo {
+            security_level: 80, // Default security level
+            field_type: "M31".to_string(),
+            trace_columns: component.trace_log_degree_bounds().len(),
+            log_degree_bound: component.max_constraint_log_degree_bound() as usize,
+            blowup_factor: 4, // Default blowup factor for Stwo
+        };
+
+        let metadata = ProofGenerationInfo {
+            timestamp: proof.metadata.timestamp,
+            generation_time_ms,
+            proof_size_bytes: proof.stark_proof.size_estimate(),
+            structure_type: proof.metadata.structure_type.clone(),
+            zyrkom_version: VERSION.to_string(),
+        };
+
+        Ok(ZyrkomProofJson {
+            proof_path: proof_path.to_string_lossy().to_string(),
+            source_path: source_path.to_string_lossy().to_string(), 
+            musical_constraints,
+            public_inputs,
+            metadata,
+            stark_info,
         })
     }
 

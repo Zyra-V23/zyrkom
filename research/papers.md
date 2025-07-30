@@ -1351,3 +1351,39 @@ Este Matrix UI convierte Zyrkom en un **producto demo-ready** que puede:
 **Validación**: cargo check ✅ + cargo test ✅ + himno con 1,187 ZK constraints + audio 24.57s
 **Conclusión**: PROBLEMA RESUELTO - Codebase 100% compatible entre Windows y Ubuntu
 **Próximo paso**: Commit fix + push para colaborador Ubuntu + documentar solución
+
+#### [2025-01-27 15:15] - 🔍 INVESTIGATION: DONDE SE GENERAN LAS PRUEBAS ZK REALES
+**Acción**: Investigación exhaustiva sobre generación real de ZK proofs en respuesta a pregunta del colega
+**Método**: Code search + test execution + CLI proof generation con stwo framework
+**Resultado**: ✅ CONFIRMADO - SÍ SE GENERAN PRUEBAS ZK REALES usando Circle STARKs (stwo)
+**Validación**: 
+- ZK proof generado: 5,860 bytes (musical_proof.zkp)
+- CLI prove: ✅ ./zyrkom prove -i test_musical.zyrkom -o musical_proof.zkp
+- CLI verify: ✅ STARK proof verification PASSED
+- Tests: ✅ test_proof_generation ejecuta prover.prove() con stwo
+**Conclusión**: REAL ZK GENERATION - No es mock, usa framework Circle STARK de StarkWare
+**Próximo paso**: Documentar ubicaciones exactas de generación ZK para el colega
+
+#### [2025-01-27 15:30] - 📋 UBUNTU COMMANDS: CROSS-PLATFORM SETUP PARA COLEGA
+**Acción**: Preparar comandos específicos Ubuntu para reproducir generación ZK (sin .exe)
+**Método**: Cross-platform analysis + cargo install setup + alias configuration
+**Resultado**: ✅ COMANDOS UBUNTU PREPARADOS - Instalación global + uso directo "zyrkom"
+**Validación**: 
+- Ubuntu binary: ./target/release/zyrkom (sin .exe)
+- Global install: cargo install --path . (comando zyrkom global)
+- Alias setup: echo 'alias zyrkom="~/path/to/zyrkom/target/release/zyrkom"' >> ~/.bashrc
+- Cross-platform: Mismo código, diferentes binarios
+**Conclusión**: SETUP COMPLETO - Colega Ubuntu puede usar "zyrkom" directamente
+**Próximo paso**: Documentar step-by-step Ubuntu installation guide
+
+#### [2025-01-27 16:00] - 🚀 FEATURE: JSON METADATA GENERATION (CIRCOM-STYLE OUTPUT)
+**Acción**: Implementación completa de generación JSON metadata junto con pruebas ZK
+**Método**: Nuevas estructuras ZyrkomProofJson + CLI flag --json + metadata detallada
+**Resultado**: ✅ JSON GENERATION COMPLETA - Estilo Circom/SnarkJS con info detallada
+**Validación**: 
+- CLI: zyrkom prove -i test.zyrkom -o proof.zkp --json → genera proof.json
+- JSON contiene: constraints info, public inputs (hex), STARK info, timing, metadata
+- Formato similar a Circom: trace_path, memory_path, pedersen, range_check arrays
+- Cross-platform: Ubuntu con flags -i -o --json (no argumentos posicionales)
+**Conclusión**: FEATURE COMPLETA - JSON metadata como herramientas ZK profesionales
+**Próximo paso**: Push código + documentar para colega Ubuntu

@@ -1,0 +1,41 @@
+{
+  "proof_path": "musical_proof_with_json.zkp",
+  "source_path": "test_musical.zyrkom",
+  "musical_constraints": [
+    {
+      "index": 0,
+      "constraint_type": "harmonic_ratio",
+      "ratio": 0.5946136363636364,
+      "frequencies": [
+        261.63,
+        440.0
+      ]
+    }
+  ],
+  "public_inputs": [
+    {
+      "index": 0,
+      "value": "0x1",
+      "description": "Constraint count"
+    },
+    {
+      "index": 1,
+      "value": "0x1",
+      "description": "Musical structure identifier"
+    }
+  ],
+  "metadata": {
+    "timestamp": 1753858329,
+    "generation_time_ms": 2,
+    "proof_size_bytes": 5372,
+    "structure_type": "Interval",
+    "zyrkom_version": "0.1.0"
+  },
+  "stark_info": {
+    "security_level": 80,
+    "field_type": "M31",
+    "trace_columns": 2,
+    "log_degree_bound": 10,
+    "blowup_factor": 4
+  }
+}

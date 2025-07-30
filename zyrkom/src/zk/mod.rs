@@ -21,6 +21,11 @@ pub use stark::{
     ZyrkomProver,
     ZyrkomVerifier,
     MusicalProof,
+    ZyrkomProofJson,
+    ConstraintInfo,
+    PublicInput,
+    ProofGenerationInfo,
+    StarkInfo,
 };
 
 pub use component::ZyrkomComponent; 

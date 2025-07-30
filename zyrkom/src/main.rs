@@ -34,6 +34,9 @@ enum Commands {
         /// Use GPU acceleration if available
         #[arg(long)]
         gpu: bool,
+        /// Generate JSON metadata file alongside proof
+        #[arg(long)]
+        json: bool,
     },
     /// Verify a ZK proof
     Verify {
@@ -58,8 +61,8 @@ fn main() -> Result<()> {
         Commands::Parse { input, format } => {
             handle_parse(input, format)
         }
-        Commands::Prove { input, output, gpu } => {
-            handle_prove(input, output, gpu)
+        Commands::Prove { input, output, gpu, json } => {
+            handle_prove(input, output, gpu, json)
         }
         Commands::Verify { proof, source, verbose } => {
             handle_verify(proof, source, verbose)
@@ -139,7 +142,7 @@ fn handle_parse(input: PathBuf, format: String) -> Result<()> {
     Ok(())
 }
 
-fn handle_prove(input: PathBuf, output: PathBuf, _gpu: bool) -> Result<()> {
+fn handle_prove(input: PathBuf, output: PathBuf, _gpu: bool, generate_json: bool) -> Result<()> {
     let content = std::fs::read_to_string(&input)
         .map_err(|e| zyrkom::ZyrkomError::ParseError {
             message: format!("Cannot read file: {}", e),
@@ -168,11 +171,16 @@ fn handle_prove(input: PathBuf, output: PathBuf, _gpu: bool) -> Result<()> {
     println!("  📊 {} constraints generated", constraints.constraint_count());
     
     let prover = ZyrkomProver::new(constraints)?;
+    
+    // Measure proof generation time
+    let start_time = std::time::Instant::now();
     let proof = prover.prove()?;
+    let generation_time = start_time.elapsed();
     
     println!("  ✅ Proof generated successfully");
     println!("  📏 Proof size: {} bytes", proof.stark_proof.size_estimate());
     println!("  🎼 Structure: {}", proof.metadata.structure_type);
+    println!("  ⏱️  Generation time: {:.2}ms", generation_time.as_millis());
     
     // Save proof as binary
     let proof_bytes = bincode::serialize(&proof)
@@ -186,6 +194,29 @@ fn handle_prove(input: PathBuf, output: PathBuf, _gpu: bool) -> Result<()> {
         })?;
     
     println!("  💾 Proof saved to: {}", output.display());
+
+    // Generate JSON metadata if requested
+    if generate_json {
+        let json_output = output.with_extension("json");
+        let proof_json = prover.generate_proof_json(
+            &proof, 
+            &output, 
+            &input, 
+            generation_time.as_millis() as u64
+        )?;
+        
+        let json_string = serde_json::to_string_pretty(&proof_json)
+            .map_err(|e| zyrkom::ZyrkomError::ProofError {
+                reason: format!("JSON serialization failed: {}", e),
+            })?;
+        
+        std::fs::write(&json_output, json_string)
+            .map_err(|e| zyrkom::ZyrkomError::ProofError {
+                reason: format!("Cannot write JSON file: {}", e),
+            })?;
+        
+        println!("  📋 JSON metadata saved to: {}", json_output.display());
+    }
     
     Ok(())
 }

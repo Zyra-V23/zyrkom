@@ -46,7 +46,7 @@ pub mod utils;
 
 pub use musical::{MusicalInterval, MusicalNote, Chord};
 pub use dsl::{ZyrkomParser, ParsedElement};
-pub use zk::{ZyrkomProver, ZyrkomVerifier, MusicalProof, ZyrkomComponent};
+pub use zk::{ZyrkomProver, ZyrkomVerifier, MusicalProof, ZyrkomComponent, ZyrkomProofJson};
 
 /// Common error types for Zyrkom operations
 #[derive(Debug, thiserror::Error)]
