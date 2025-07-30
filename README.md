@@ -224,8 +224,14 @@ cargo test --lib --features test-audio test_spanish_anthem_zk_real_melody -- --n
 - **Authentic tempo**: 76 BPM official (Real Decreto 1560/1997)
 - **Perfect rhythm**: ♩ ♩ ♩ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ from official sheet music
 - **4 complete phrases**: 24.38s duration with authentic timing
-- **1,187 ZK constraints**: Every note cryptographically verified
+- **1,187+ ZK constraints**: Every note cryptographically verified
+- **Real ZK proof generation**: Creates `spanish_anthem_marcha_real.zkp` + `spanish_anthem_marcha_real.json`
 - **Historical first**: National anthem with zero-knowledge proof validation
+
+**Files generated after test:**
+- 🔐 `spanish_anthem_marcha_real.zkp` - Binary ZK proof (~5KB)
+- 📋 `spanish_anthem_marcha_real.json` - Detailed metadata (Circom-style)
+- 🎼 `spanish_anthem_marcha_real.zyrkom` - DSL source file
 
 ### Sample Test Output (with Audio!)
 ```

@@ -1,0 +1,30 @@
+// Spanish National Anthem - Marcha Real
+// Official melody with exact note sequence and rhythmic durations
+// Tempo: 76 BPM (Real Decreto 1560/1997)
+
+// Musical notes with exact frequencies (Hz)
+note FA = 349.23
+note DO = 261.63  
+note LA = 440.00
+note DO_HIGH = 523.25  // DO* (octave higher)
+note SIB = 466.16      // Bb (Si bemol)
+note SOL = 392.00      // G
+note MI = 329.63       // E  
+note RE = 293.66       // D
+
+// Phrase 1: FA DO LA FA DO* SIb LA SOL FA FA MI RE DO
+// Rhythm: ♩ ♩ ♩ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫
+chord phrase1 = FA + DO + LA + FA + DO_HIGH + SIB + LA + SOL + FA + FA + MI + RE + DO
+
+// Phrase 2: FA SOL LA DO* SIb LA SOL FA DO*  
+// Rhythm: ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♫ ♩
+chord phrase2 = FA + SOL + LA + DO_HIGH + SIB + LA + SOL + FA + DO_HIGH
+
+// Musical intervals (harmonic ratios for ZK validation)
+interval perfect_fifth = 1.5      // 3:2 ratio
+interval major_third = 1.25       // 5:4 ratio  
+interval octave = 2.0             // 2:1 ratio
+interval perfect_fourth = 1.333   // 4:3 ratio
+
+// ZK constraint: Validate harmonic relationships in Spanish anthem
+constraint spanish_anthem_harmony = phrase1 + phrase2

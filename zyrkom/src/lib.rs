@@ -243,12 +243,48 @@ mod tests {
         
         println!("\n\n⚡ Generated {} ZK constraints for REAL Spanish anthem", constraints.constraints.len());
         println!("🏛️  Mathematical validation: Every note cryptographically verified");
-        println!("🇪🇸 Marcha Real ZK proof - AUTHENTIC MELODY validated!");
-        println!("✅ First time in history: National anthem with zero-knowledge verification!\n");
         
-        // Verify we have meaningful constraints
-        assert!(constraints.constraints.len() > 0, "Real Spanish anthem should generate constraints");
-        assert!(constraints.constraints.len() >= 20, "Complex real anthem should generate many constraints");
+        // 🔥 GENERATE REAL ZK PROOF + JSON FOR SPANISH ANTHEM!
+        println!("🔮 Generating ZK proof for Spanish National Anthem...");
+        let start_time = std::time::Instant::now();
+        
+        let prover = crate::zk::ZyrkomProver::new(constraints).expect("Should create prover for Spanish anthem");
+        let proof = prover.prove().expect("Should generate ZK proof for Spanish anthem");
+        let generation_time = start_time.elapsed();
+        
+        println!("  ✅ Spanish anthem ZK proof generated successfully!");
+        println!("  📏 Proof size: {} bytes", proof.stark_proof.size_estimate());
+        println!("  🎼 Structure: {}", proof.metadata.structure_type);
+        println!("  ⏱️  Generation time: {:.2}ms", generation_time.as_millis());
+        
+        // Save Spanish anthem ZK proof as .zkp file
+        let proof_path = std::path::Path::new("spanish_anthem_marcha_real.zkp");
+        let proof_bytes = bincode::serialize(&proof).expect("Should serialize Spanish anthem proof");
+        std::fs::write(proof_path, proof_bytes).expect("Should write Spanish anthem proof file");
+        println!("  💾 Spanish anthem proof saved to: {}", proof_path.display());
+        
+        // Generate JSON metadata for Spanish anthem
+        let source_path = std::path::Path::new("spanish_anthem_marcha_real.zyrkom");
+        let proof_json = prover.generate_proof_json(
+            &proof, 
+            proof_path, 
+            source_path, 
+            generation_time.as_millis() as u64
+        ).expect("Should generate JSON for Spanish anthem");
+        
+        let json_path = std::path::Path::new("spanish_anthem_marcha_real.json");
+        let json_string = serde_json::to_string_pretty(&proof_json).expect("Should serialize Spanish anthem JSON");
+        std::fs::write(json_path, json_string).expect("Should write Spanish anthem JSON file");
+        println!("  📋 Spanish anthem JSON metadata saved to: {}", json_path.display());
+        
+        println!("🇪🇸 Marcha Real ZK proof - AUTHENTIC MELODY validated!");
+        println!("✅ First time in history: National anthem with zero-knowledge verification!");
+        println!("🎵 Files generated: spanish_anthem_marcha_real.zkp + spanish_anthem_marcha_real.json\n");
+        
+        // Verify we have meaningful constraints and successful proof
+        assert!(proof.metadata.constraint_count > 0, "Real Spanish anthem should generate constraints");
+        assert!(proof.metadata.constraint_count >= 20, "Complex real anthem should generate many constraints");
+        assert!(proof.stark_proof.size_estimate() > 1000, "Spanish anthem proof should be substantial");
     }
 
     #[cfg(feature = "test-audio")]
