@@ -36,7 +36,7 @@ pub mod constants {
 
 /// Type-safe musical interval representation
 /// Enforces physical validity at compile time where possible
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct MusicalInterval {
     /// Frequency ratio (must be > 1.0 for ascending intervals)
     ratio: f64,
@@ -99,6 +99,14 @@ impl MusicalInterval {
         Self {
             ratio: constants::OCTAVE_RATIO,
             cents: constants::CENTS_PER_OCTAVE,
+        }
+    }
+    
+    /// Major sixth - immutable physical constant
+    pub const fn major_sixth() -> Self {
+        Self {
+            ratio: 1.6666666666666667, // 5:3 ratio
+            cents: 884.359, // Exact value for 5:3 ratio
         }
     }
     

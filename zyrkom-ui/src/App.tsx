@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FloatingWindow from './components/FloatingWindow';
 import DoomWindow from './components/DoomWindow';
 import ZyrkomWindow from './components/ZyrkomWindow';
+import MusicalDnaWindow from './components/MusicalDnaWindow';
 import { Howl } from 'howler';
 
 // Windows 95 startup sound (optional)
@@ -14,12 +15,15 @@ const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showDoomWindow, setShowDoomWindow] = useState(false);
   const [showZyrkomWindow, setShowZyrkomWindow] = useState(false);
+  const [showMusicalDnaWindow, setShowMusicalDnaWindow] = useState(false);
   
   // Icon positions
   const [doomIconPosition, setDoomIconPosition] = useState({ x: 50, y: 50 });
   const [zyrkomIconPosition, setZyrkomIconPosition] = useState({ x: 50, y: 150 });
+  const [musicalDnaIconPosition, setMusicalDnaIconPosition] = useState({ x: 50, y: 250 });
   const [isDraggingDoom, setIsDraggingDoom] = useState(false);
   const [isDraggingZyrkom, setIsDraggingZyrkom] = useState(false);
+  const [isDraggingMusicalDna, setIsDraggingMusicalDna] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
@@ -75,6 +79,8 @@ const App: React.FC = () => {
       setIsDraggingDoom(true);
     } else if (icon === 'zyrkom') {
       setIsDraggingZyrkom(true);
+    } else if (icon === 'musical-dna') {
+      setIsDraggingMusicalDna(true);
     }
     setSelectedIcon(icon);
   };
@@ -84,6 +90,8 @@ const App: React.FC = () => {
       setShowDoomWindow(true);
     } else if (icon === 'zyrkom') {
       setShowZyrkomWindow(true);
+    } else if (icon === 'musical-dna') {
+      setShowMusicalDnaWindow(true);
     }
   };
 
@@ -133,6 +141,26 @@ const App: React.FC = () => {
           <img src="/zyrkom-icon.svg" alt="Zyrkom" />
           <span>Zyrkom ZK</span>
         </div>
+
+        {/* Musical DNA Icon */}
+        <div
+          className={`desktop-icon ${selectedIcon === 'musical-dna' ? 'selected' : ''}`}
+          style={{
+            position: 'absolute',
+            left: musicalDnaIconPosition.x,
+            top: musicalDnaIconPosition.y,
+          }}
+          onMouseDown={(e) => handleIconMouseDown('musical-dna', e)}
+          onDoubleClick={() => handleIconDoubleClick('musical-dna')}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedIcon('musical-dna');
+          }}
+          title="Musical DNA - Discover Your Unique Musical Fingerprint"
+        >
+          <img src="/musical-dna-icon.svg" alt="Musical DNA" />
+          <span>Musical DNA</span>
+        </div>
       </div>
 
       {/* Windows */}
@@ -142,6 +170,10 @@ const App: React.FC = () => {
       
       {showZyrkomWindow && (
         <ZyrkomWindow onClose={() => setShowZyrkomWindow(false)} />
+      )}
+
+      {showMusicalDnaWindow && (
+        <MusicalDnaWindow onClose={() => setShowMusicalDnaWindow(false)} />
       )}
 
       {/* Taskbar */}

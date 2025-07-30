@@ -42,11 +42,13 @@
 pub mod musical;
 pub mod zk;
 pub mod dsl;
+pub mod musical_dna;
 pub mod utils;
 
 pub use musical::{MusicalInterval, MusicalNote, Chord};
 pub use dsl::{ZyrkomParser, ParsedElement};
-pub use zk::{ZyrkomProver, ZyrkomVerifier, MusicalProof, ZyrkomComponent, ZyrkomProofJson};
+pub use zk::{ZyrkomProver, ZyrkomVerifier, MusicalProof, ZyrkomComponent, ZyrkomProofJson, ConstraintType, MusicalConstraint, ConstraintSystem};
+pub use musical_dna::MusicalDna;
 
 /// Common error types for Zyrkom operations
 #[derive(Debug, thiserror::Error)]
@@ -89,6 +91,16 @@ pub enum ZyrkomError {
         /// Context about constraint generation failure
         context: String 
     },
+    
+    /// Serialization error
+    #[error("Serialization error: {0}")]
+    SerializationError(String),
+}
+
+impl From<bincode::Error> for ZyrkomError {
+    fn from(err: bincode::Error) -> Self {
+        ZyrkomError::SerializationError(err.to_string())
+    }
 }
 
 /// Result type for Zyrkom operations

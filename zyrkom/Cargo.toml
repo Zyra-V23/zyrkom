@@ -37,6 +37,11 @@ serde_json = "1.0"
 # CLI 
 clap = { version = "4.0", features = ["derive"] }
 bincode = "1.3"
+colored = "2.1"
+
+# Cryptography
+sha2 = "0.10"
+hex = "0.4"
 
 # Optimization & SIMD
 bytemuck = { version = "1.0", features = ["derive"] }
@@ -71,6 +76,15 @@ audio = ["rodio", "cpal"]
 test-audio = ["audio"] # Enables sound during tests
 # gpu = ["stwo/gpu"]  # Stwo doesn't have gpu feature yet
 simd = []
+
+# Binary targets
+[[bin]]
+name = "zyrkom"
+path = "src/main.rs"
+
+[[bin]]
+name = "musical-dna"
+path = "src/bin/musical_dna.rs"
 
 [[bench]]
 name = "musical_constraints"

@@ -392,9 +392,100 @@ app.get('/download-zkp', async (req, res) => {
   }
 });
 
+// Add endpoint for Musical DNA generation
+app.post('/generate-musical-dna', async (req, res) => {
+  try {
+    const { name, favorite_songs, selected_genres } = req.body;
+    
+    console.log(`🧬 Generating Musical DNA for: ${name}`);
+    console.log(`🎵 Songs: ${favorite_songs?.join(', ')}`);
+    console.log(`🎸 Genres: ${selected_genres?.join(', ')}`);
+
+    // Call the Rust musical-dna binary
+    const rustProcess = spawn('cargo', [
+      'run',
+      '--bin',
+      'musical-dna',
+      'generate',
+      '--name',
+      name
+    ], {
+      cwd: path.join(__dirname, '../../zyrkom'),
+      env: { ...process.env },
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    let output = '';
+    let errorOutput = '';
+
+    rustProcess.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    rustProcess.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    rustProcess.on('close', async (code) => {
+      if (code !== 0) {
+        console.error('❌ Musical DNA generation failed:', errorOutput);
+        return res.status(500).json({ error: 'Musical DNA generation failed' });
+      }
+
+      try {
+        // Parse the output to extract Musical DNA data
+        const fingerprintMatch = output.match(/Musical DNA: (MDNA-[a-f0-9]+)/);
+        const colorMatch = output.match(/Synesthetic Color: (#[a-f0-9]{6})/);
+        const complexityMatch = output.match(/Harmonic Complexity: (\d+)%/);
+
+        if (!fingerprintMatch || !colorMatch || !complexityMatch) {
+          throw new Error('Failed to parse Musical DNA output');
+        }
+
+        // Try to read the generated JSON file
+        const filename = `musical_dna_${name.toLowerCase().replace(/\s+/g, '_')}.json`;
+        const filepath = path.join(__dirname, '../../zyrkom', filename);
+        
+        let dnaData = {
+          fingerprint: fingerprintMatch[1],
+          synesthetic_color: colorMatch[1],
+          harmonic_complexity: parseInt(complexityMatch[1]),
+          interval_preferences: [],
+          rhythm_signature: [],
+          tonal_centers: []
+        };
+
+        try {
+          const fileContent = await fs.readFile(filepath, 'utf8');
+          const parsedData = JSON.parse(fileContent);
+          dnaData = { ...dnaData, ...parsedData };
+        } catch (fileErr) {
+          console.warn('⚠️ Could not read DNA JSON file, using parsed data');
+        }
+
+        console.log('✅ Musical DNA generated successfully:', dnaData.fingerprint);
+        res.json({
+          success: true,
+          dna_data: dnaData,
+          raw_output: output
+        });
+
+      } catch (parseErr) {
+        console.error('❌ Error parsing Musical DNA output:', parseErr);
+        res.status(500).json({ error: 'Failed to parse Musical DNA data' });
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Musical DNA generation error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Zyrkom backend server running on http://localhost:${PORT}`);
   console.log(`🔗 WebSocket server ready on ws://localhost:8081`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🎵 Ready for Spanish Anthem ZK proof generation!`);
+  console.log(`🧬 Ready for Musical DNA generation!`);
 });
