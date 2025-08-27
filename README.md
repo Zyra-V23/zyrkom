@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/license-ZRCL%20v1.0-blue.svg)](LICENSE-ZYRKOM)
 [![Dual License](https://img.shields.io/badge/dual%20license-Open%20Source%20%2B%20Commercial-green.svg)](docs/LICENSING_GUIDE.md)
 
-I want to give special thanks to the whole EscuelaCryptoES community, without them I wouldn't be here nowadays. Nadai, Iván, Toni, 4nibhal and Datarupture, thanks for motivating me and helping me during this process. 
+I want to give special thanks to the whole EscuelaCryptoES community, without them I wouldn't be here nowadays. Nadai, Iván, Toni, 4nibhal and Datapture, thanks for motivating me and helping me during this process. 
 
 ## 🌟 **PROJECT STATUS: JANUARY 2025**
 
