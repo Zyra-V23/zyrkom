@@ -1,0 +1,136 @@
+# Zyrkom Commercial License Template
+
+**CONFIDENTIAL - COMMERCIAL LICENSE AGREEMENT**
+
+This Commercial License Agreement ("Agreement") is entered into between:
+
+**LICENSOR:** ZyraV21  
+**GitHub:** @Zyra-V23  
+**Twitter:** @ZyraV21  
+
+**LICENSEE:** [COMPANY/ORGANIZATION NAME]  
+**Contact:** [CONTACT INFORMATION]  
+
+## 1. COMMERCIAL USE GRANT
+
+Subject to the terms of this Agreement, Licensor grants Licensee a non-exclusive, non-transferable license to:
+- Use the Zyrkom Software for commercial purposes
+- Integrate Zyrkom into commercial products and services
+- Distribute products incorporating Zyrkom technology
+- Offer services based on Zyrkom technology
+
+## 2. LICENSE TERMS
+
+### 2.1 License Fee
+- **One-time License Fee:** $[AMOUNT] USD
+- **Ongoing Royalty:** [X]% of net revenue from Zyrkom-based products/services
+- **Payment Terms:** [PAYMENT SCHEDULE]
+
+### 2.2 License Scope
+- **Territory:** [WORLDWIDE/SPECIFIC REGIONS]
+- **Duration:** [TERM LENGTH]
+- **Users:** Up to [NUMBER] developers/users
+- **Products:** [SPECIFIC PRODUCTS OR UNLIMITED]
+
+### 2.3 Revenue Sharing
+For products/services generating revenue using Zyrkom:
+- **Tier 1 (0-100K USD/year):** 5% royalty
+- **Tier 2 (100K-1M USD/year):** 8% royalty  
+- **Tier 3 (1M+ USD/year):** 12% royalty
+
+## 3. RESTRICTIONS
+
+### 3.1 Prohibited Actions
+Licensee may NOT:
+- Sublicense Zyrkom to third parties without written consent
+- Remove or modify copyright notices
+- Reverse engineer core cryptographic algorithms
+- Use Zyrkom in competing ZK protocol development
+
+### 3.2 Compliance
+Licensee must:
+- Provide quarterly revenue reports for Zyrkom-based products
+- Include proper attribution in commercial products
+- Notify Licensor of any security vulnerabilities discovered
+- Maintain confidentiality of proprietary Zyrkom components
+
+## 4. SUPPORT AND UPDATES
+
+### 4.1 Technical Support
+- **Priority Support:** 24-48 hour response time
+- **Implementation Assistance:** Up to [X] hours of consulting
+- **Custom Features:** Available at additional cost
+
+### 4.2 Updates and Maintenance
+- Free updates for bug fixes and security patches
+- Access to new versions during license term
+- Migration assistance for major version updates
+
+## 5. INTELLECTUAL PROPERTY
+
+### 5.1 Ownership
+- Zyrkom core technology remains property of Licensor
+- Licensee owns their specific implementations and integrations
+- Improvements to Zyrkom core may be claimed by Licensor
+
+### 5.2 Contributions
+- Optional: Licensee may contribute improvements back to open source version
+- Commercial advantages may be retained in proprietary fork
+- Patent protection for core Zyrkom algorithms
+
+## 6. WARRANTIES AND LIABILITY
+
+### 6.1 Limited Warranty
+Licensor warrants that Zyrkom will perform substantially as documented for [WARRANTY PERIOD].
+
+### 6.2 Liability Limitation
+Licensor's total liability shall not exceed the license fees paid in the previous 12 months.
+
+## 7. TERMINATION
+
+### 7.1 Termination Triggers
+This Agreement terminates if Licensee:
+- Fails to pay license fees within 30 days of due date
+- Violates any material terms of this Agreement
+- Files for bankruptcy or becomes insolvent
+
+### 7.2 Post-Termination
+Upon termination:
+- Licensee must cease all commercial use of Zyrkom
+- Outstanding royalties remain due
+- Existing deployed products may continue operating for [X] months
+
+## 8. CUSTOM TERMS
+
+### 8.1 Industry-Specific Terms
+- **DeFi/Blockchain:** Additional audit requirements
+- **Enterprise:** Enhanced SLA and support terms
+- **Government:** Compliance with specific regulations
+- **Academic Institution:** Reduced royalty rates
+
+### 8.2 Partnership Opportunities
+- **Revenue Sharing:** Joint development agreements
+- **White-label:** Custom branding options
+- **Exclusive Rights:** Territory or industry exclusivity (premium pricing)
+
+## 9. CONTACT AND SIGNATURES
+
+**Questions or Modifications:**
+- GitHub: https://github.com/Zyra-V23
+- Twitter: @ZyraV21
+- Email: [BUSINESS EMAIL]
+
+**Agreement Date:** ___________
+
+**LICENSOR:**                    **LICENSEE:**
+_________________              _________________
+ZyraV21                        [COMPANY REPRESENTATIVE]
+Date: ___________              Date: ___________
+
+---
+
+**PRICING GUIDELINES:**
+- **Startup License:** $5,000 - $15,000 one-time + 5% royalty
+- **Enterprise License:** $25,000 - $100,000 + 8-12% royalty  
+- **Exclusive Territory:** $100,000+ + 15% royalty
+- **Custom Development:** $1,000-5,000/day consulting rate

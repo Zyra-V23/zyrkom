@@ -1,0 +1,113 @@
+# Zyrkom Restricted Commercial License (ZRCL) v1.0
+
+**Copyright (c) 2025 Zyra V-21 (Twitter: @ZyraV21, GitHub: @Zyra-V23)**
+
+## TERMS AND CONDITIONS
+
+### 1. DEFINITIONS
+
+- **"Software"** refers to the Zyrkom project, including but not limited to the core Rust implementation, DSL compiler, documentation, examples, and all associated materials.
+- **"Author"** refers exclusively to ZyraV21 (Twitter: @ZyraV21, GitHub: @Zyra-V23).
+- **"Commercial Use"** means any use of the Software that generates revenue, profit, or commercial advantage, including but not limited to:
+  - Selling licenses, access, or services related to the Software
+  - Using the Software in commercial products or services
+  - Offering consulting, support, or training services for the Software
+  - Creating derivative works for commercial purposes
+- **"Contribution"** means any work of authorship submitted to the Software repository.
+
+### 2. GRANT OF RIGHTS
+
+#### 2.1 Non-Commercial Use License
+Subject to the terms of this license, the Author grants you a worldwide, royalty-free, non-exclusive license to:
+- Use, copy, modify, and distribute the Software for non-commercial purposes
+- Create derivative works for non-commercial purposes
+- Submit contributions to the Software repository
+
+#### 2.2 Commercial Use Restriction
+**ALL COMMERCIAL USE RIGHTS ARE EXCLUSIVELY RESERVED TO THE AUTHOR.**
+No person or entity other than the Author may:
+- Monetize the Software in any form
+- Use the Software for commercial purposes
+- Sell products or services incorporating the Software
+- Offer paid training, consulting, or support services for the Software
+
+### 3. CONTRIBUTIONS
+
+#### 3.1 Contributor License Agreement
+By submitting a Contribution, you:
+- Grant the Author a perpetual, worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and distribute your Contribution
+- Acknowledge that the Author retains exclusive commercial rights to your Contribution
+- Represent that you have the right to make the Contribution
+- Agree that your Contribution will be subject to this license
+
+#### 3.2 Recognition
+All contributors will be recognized in the project documentation and release notes.
+
+### 4. ACADEMIC AND RESEARCH USE
+
+Educational institutions, researchers, and students may use the Software for:
+- Academic research and education
+- Non-commercial research projects
+- Thesis and dissertation work
+- Publishing academic papers (with proper attribution)
+
+### 5. ATTRIBUTION
+
+All use of the Software must include:
+- Copyright notice: "Copyright (c) 2025 ZyraV21"
+- Link to original repository: https://github.com/Zyra-V23/zyrkom
+- This license notice in substantial portions of the Software
+
+### 6. COMMERCIAL LICENSING
+
+Organizations requiring commercial use may contact the Author at:
+- GitHub: @Zyra-V23
+- Twitter: @ZyraV21
+
+Commercial licenses will be negotiated on a case-by-case basis.
+
+### 7. PATENT RIGHTS
+
+If you institute patent litigation against the Author or any contributor regarding patents that you claim are infringed by the Software, your license to the Software terminates automatically.
+
+### 8. TERMINATION
+
+This license terminates automatically if you:
+- Violate any commercial use restrictions
+- Fail to provide proper attribution
+- Institute patent litigation against the Author
+- Use the Software in violation of this license
+
+### 9. DISCLAIMER OF WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+### 10. LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### 11. GOVERNING LAW
+
+This license shall be governed by and construed in accordance with the laws of Spain and the European Union, without regard to its conflict of law provisions. Any disputes shall be resolved in the competent courts of Madrid, Spain.
+
+---
+
+**SUMMARY FOR DEVELOPERS:**
+✅ **YOU CAN:**
+- Use Zyrkom for personal projects
+- Contribute code improvements
+- Use for research and education
+- Create non-commercial derivative works
+- Study and learn from the code
+
+❌ **YOU CANNOT:**
+- Sell Zyrkom or products based on it
+- Offer paid services using Zyrkom
+- Monetize Zyrkom in any way
+- Use Zyrkom in commercial products
+
+**WANT COMMERCIAL USE?** Contact @Zyra-V23 on GitHub or @ZyraV21 on Twitter for licensing options.
+
+---
+
+*This license ensures Zyrkom remains open for learning and contribution while protecting the author's commercial interests.*
