@@ -5,7 +5,8 @@
 [![Circle STARKs](https://img.shields.io/badge/ZK-Circle%20STARKs-blue.svg)](https://github.com/starkware-libs/stwo)
 [![Tests](https://img.shields.io/badge/tests-47%20passing-green.svg)](#testing)
 [![Starknet](https://img.shields.io/badge/Starknet-74%25%20Gas%20Reduction-purple.svg)](#starknet-deployment)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-ZRCL%20v1.0-blue.svg)](LICENSE-ZYRKOM)
+[![Dual License](https://img.shields.io/badge/dual%20license-Open%20Source%20%2B%20Commercial-green.svg)](docs/LICENSING_GUIDE.md)
 
 ## 🌟 **PROJECT STATUS: JANUARY 2025**
 
