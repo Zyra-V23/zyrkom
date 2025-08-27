@@ -10,7 +10,6 @@
 
 I want to give special thanks to the whole EscuelaCryptoES community, without them I wouldn't be here nowadays. Nadai, Iván, Toni, 4nibhal and Datapture, thanks for motivating me and helping me during this process. 
 
-## 🌟 **PROJECT STATUS: JANUARY 2025**
 
 ### ✅ **COMPLETED MILESTONES**
 - **M1: Research & Hybrid Design** - 100% COMPLETED
